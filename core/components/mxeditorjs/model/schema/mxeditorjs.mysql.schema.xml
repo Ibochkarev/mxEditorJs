@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model package="mxeditorjs" baseClass="xPDOObject" platform="mysql" defaultEngine="InnoDB" phpdoc-package="mxeditorjs" version="3.0">
+    <object class="MxEditorJsContent" table="mxeditorjs_content" extends="xPDOSimpleObject">
+        <field key="resource_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" index="unique" />
+        <field key="content_json" dbtype="mediumtext" phptype="json" null="false" />
+        <field key="content_version" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="1" />
+        <field key="content_hash" dbtype="varchar" precision="64" phptype="string" null="false" default="" />
+        <field key="schema_version" dbtype="varchar" precision="16" phptype="string" null="false" default="2.31" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+        <field key="updated_at" dbtype="datetime" phptype="datetime" null="false" />
+        <field key="created_by" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" />
+        <field key="updated_by" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" />
+
+        <index alias="resource_id" name="resource_id" primary="false" unique="true" type="BTREE">
+            <column key="resource_id" length="" collation="A" null="false" />
+        </index>
+    </object>
+
+    <object class="MxEditorJsTvContent" table="mxeditorjs_tv_content" extends="xPDOSimpleObject">
+        <field key="resource_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" />
+        <field key="tmplvar_id" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" />
+        <field key="content_json" dbtype="mediumtext" phptype="json" null="false" />
+        <field key="content_version" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="1" />
+        <field key="content_hash" dbtype="varchar" precision="64" phptype="string" null="false" default="" />
+        <field key="schema_version" dbtype="varchar" precision="16" phptype="string" null="false" default="2.31" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+        <field key="updated_at" dbtype="datetime" phptype="datetime" null="false" />
+        <field key="created_by" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" />
+        <field key="updated_by" dbtype="int" precision="10" attributes="unsigned" phptype="integer" null="false" default="0" />
+
+        <index alias="resource_tmplvar" name="resource_tmplvar" primary="false" unique="true" type="BTREE">
+            <column key="resource_id" length="" collation="A" null="false" />
+            <column key="tmplvar_id" length="" collation="A" null="false" />
+        </index>
+        <index alias="resource_id" name="resource_id" primary="false" unique="false" type="BTREE">
+            <column key="resource_id" length="" collation="A" null="false" />
+        </index>
+    </object>
+</model>

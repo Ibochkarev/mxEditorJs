@@ -1,0 +1,40 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.0.0-beta1] - 2026-03-07
+
+First beta release of mxEditorJs for MODX 3.
+
+### Added
+- Block-style editor for resource `content` field based on Editor.js
+- Canonical JSON storage in dedicated sidecar table (`mxeditorjs_content`)
+- HTML snapshot rendering to `modResource.content` for frontend compatibility
+- Core block types: Paragraph, Header, List
+- Extended block types: Quote, Code, Delimiter, Table, Raw HTML
+- Image upload integration with MODX Media Sources
+- Smart internal linking with resource autocomplete (LinkAutocomplete tool)
+- External, email, and anchor link support
+- Fullscreen editing mode
+- Source preview (read-only HTML view)
+- HTML-to-JSON migration for legacy content
+- Content validation with JSON schema (ContentValidator)
+- MIME type validation for uploads via `finfo_file()`
+- Permission checks for `save_document` on all operations
+- Filename sanitization with incremental naming for duplicates
+- Graceful fallback to textarea on editor initialization failure
+- Full lexicon support (Russian, English)
+
+### Technical
+- MODX 3 only (no MODX 2 support)
+- PHP 8.2+ required
+- TypeScript frontend with esbuild bundling
+- Plugin events: `OnRichTextEditorRegister`, `OnDocFormPrerender`, `OnResourceDelete`
+- Namespace: `mxeditorjs`
+
+### Dependencies
+- Editor.js 2.x (bundled)
+- MODX 3.0.3+

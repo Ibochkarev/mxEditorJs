@@ -1,0 +1,22 @@
+diff --git a/node_modules/@editorjs/attaches/dist/attaches.mjs b/node_modules/@editorjs/attaches/dist/attaches.mjs
+index f193fcf..16878a6 100644
+--- a/node_modules/@editorjs/attaches/dist/attaches.mjs
++++ b/node_modules/@editorjs/attaches/dist/attaches.mjs
+@@ -751,13 +751,13 @@ class B {
+     this.nodes.button = F("div", [this.CSS.apiButton, this.CSS.button]), this.nodes.button.innerHTML = `${j} ${this.config.buttonText}`, this.readOnly || this.nodes.button.addEventListener("click", this.enableFileUpload), this.nodes.wrapper.appendChild(this.nodes.button);
+   }
+   /**
+-   * Fires after clicks on the Toolbox AttachesTool Icon
+-   * Initiates click on the Select File button
++   * Fires after Block contents is added to the page.
++   * Initiates click on the Select File button when block is added from toolbox.
+    *
+    * @public
+    */
+-  appendCallback() {
+-    this.nodes.button.click();
++  rendered() {
++    this.nodes.button?.click();
+   }
+   /**
+    * Checks if any of Tool's fields have data

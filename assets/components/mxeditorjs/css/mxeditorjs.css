@@ -1,0 +1,831 @@
+.mxeditorjs-wrapper {
+  margin-bottom: 1rem;
+}
+
+.mxeditorjs-toolbar {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #f5f5f5;
+  border: 1px solid #c5c5c5;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+}
+
+.mxeditorjs-toolbar__button {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  color: #555;
+}
+
+.mxeditorjs-toolbar__button:hover {
+  background: #e8e8e8;
+  border-color: #ccc;
+}
+
+.mxeditorjs-toolbar__button--active {
+  background: #fff;
+  border-color: #999;
+  color: #222;
+}
+
+.mxeditorjs-container {
+  background: #fff;
+  border: 1px solid #c5c5c5;
+  border-radius: 0 0 4px 4px;
+  padding: 1rem;
+  min-height: 20rem;
+}
+
+.mxeditorjs-container .ce-block__content {
+  max-width: 100%;
+}
+
+.mxeditorjs-container .ce-toolbar__content {
+  max-width: 100%;
+}
+
+.mxeditorjs-container .codex-editor__redactor {
+  padding-bottom: 6rem !important;
+}
+
+/* Source preview */
+.mxeditorjs-source-preview {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border: 1px solid #c5c5c5;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 1rem;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 40rem;
+  overflow-y: auto;
+}
+
+/* Image tool */
+.mxeditorjs-image-tool {
+  margin: 0.5rem 0;
+}
+
+.mxeditorjs-image-tool__select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8rem;
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #888;
+  font-size: 0.875rem;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.mxeditorjs-image-tool__select:hover {
+  border-color: #888;
+  color: #555;
+}
+
+.mxeditorjs-image-tool__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8rem;
+  color: #888;
+  font-size: 0.875rem;
+}
+
+.mxeditorjs-image-tool__image {
+  max-width: 100%;
+  border-radius: 4px;
+  display: block;
+}
+
+.mxeditorjs-image-tool__caption {
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: #666;
+  outline: none;
+}
+
+.mxeditorjs-image-tool__caption:empty::before {
+  content: attr(data-placeholder);
+  color: #bbb;
+}
+
+/* Link input dropdown */
+.mxeditorjs-link-input {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 20rem;
+  max-width: 28rem;
+}
+
+.mxeditorjs-link-input__field {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-bottom: 1px solid #eee;
+  font-size: 0.875rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.mxeditorjs-link-input__dropdown {
+  max-height: 15rem;
+  overflow-y: auto;
+}
+
+.mxeditorjs-link-input__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.mxeditorjs-link-input__item:hover {
+  background: #f0f4ff;
+}
+
+.mxeditorjs-link-input__item:last-child {
+  border-bottom: none;
+}
+
+.mxeditorjs-link-input__title {
+  flex: 1;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mxeditorjs-link-input__id {
+  color: #999;
+  font-size: 0.75rem;
+}
+
+.mxeditorjs-link-input__uri {
+  color: #888;
+  font-size: 0.75rem;
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Fullscreen mode */
+.mxeditorjs-wrapper--fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.mxeditorjs-wrapper--fullscreen .mxeditorjs-toolbar {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  flex-shrink: 0;
+}
+
+.mxeditorjs-wrapper--fullscreen .mxeditorjs-container {
+  flex: 1;
+  overflow-y: auto;
+  border: none;
+  border-radius: 0;
+  max-width: 52rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.mxeditorjs-wrapper--fullscreen .mxeditorjs-source-preview {
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  max-height: none;
+}
+
+body.mxeditorjs-body-fullscreen {
+  overflow: hidden;
+}
+
+/* Table styles in editor */
+.mxeditorjs-container .tc-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.mxeditorjs-container .tc-row {
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.mxeditorjs-container .tc-cell {
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #e8e8e8;
+}
+
+/* UX Polish: Enhanced block interactions */
+.mxeditorjs-container .ce-block {
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  border-radius: 4px;
+  margin: 0 -0.5rem;
+  padding: 0 0.5rem;
+}
+
+.mxeditorjs-container .ce-block--focused {
+  background-color: rgba(59, 130, 246, 0.04);
+}
+
+.mxeditorjs-container .ce-block--selected .ce-block__content {
+  background-color: rgba(59, 130, 246, 0.08);
+  border-radius: 4px;
+}
+
+/* UX Polish: Smooth toolbar animations */
+.mxeditorjs-container .ce-toolbar {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.mxeditorjs-container .ce-toolbar--opened {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* UX Polish: Enhanced plus button */
+.mxeditorjs-container .ce-toolbar__plus {
+  transition: transform 0.2s ease, background-color 0.15s ease;
+}
+
+.mxeditorjs-container .ce-toolbar__plus:hover {
+  transform: scale(1.1);
+  background-color: #e0e7ff;
+}
+
+/* UX Polish: Block tune menu */
+.mxeditorjs-container .ce-settings {
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  animation: mxeditorjs-fade-in 0.15s ease;
+}
+
+@keyframes mxeditorjs-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* UX Polish: Inline toolbar */
+.mxeditorjs-container .ce-inline-toolbar {
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  animation: mxeditorjs-fade-in 0.1s ease;
+}
+
+/* UX Polish: Drag indicator */
+.mxeditorjs-container .ce-toolbar__settings-btn {
+  transition: opacity 0.15s ease;
+}
+
+.mxeditorjs-container .ce-block--drop-target::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 2px;
+  animation: mxeditorjs-pulse 0.6s ease infinite alternate;
+}
+
+@keyframes mxeditorjs-pulse {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+/* UX Polish: Better placeholder */
+.mxeditorjs-container .ce-paragraph[data-placeholder]:empty::before {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* UX Polish: Keyboard shortcut hints */
+.mxeditorjs-toolbar__button[title]::after {
+  content: attr(data-shortcut);
+  margin-left: 0.5rem;
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* UX Polish: Loading state */
+.mxeditorjs-container--loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.mxeditorjs-container--loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* UX Polish: Focus ring for accessibility */
+.mxeditorjs-toolbar__button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* UX Polish: Smooth scrolling in fullscreen */
+.mxeditorjs-wrapper--fullscreen .mxeditorjs-container {
+  scroll-behavior: smooth;
+}
+
+/* UX Polish: Quick insert indicator */
+.mxeditorjs-container .ce-toolbox {
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  animation: mxeditorjs-slide-up 0.15s ease;
+}
+
+@keyframes mxeditorjs-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Link Popup Styles */
+.mxeditorjs-link-popup {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  padding: 0.75rem;
+  min-width: 320px;
+  max-width: 400px;
+  animation: mxeditorjs-fade-in 0.15s ease;
+}
+
+.mxeditorjs-link-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.mxeditorjs-link-row label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  min-width: 3.5rem;
+  flex-shrink: 0;
+}
+
+.mxeditorjs-link-types {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mxeditorjs-link-type-btn {
+  flex: 1;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+}
+
+.mxeditorjs-link-type-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.mxeditorjs-link-type-btn--active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #fff;
+}
+
+.mxeditorjs-link-select {
+  flex: 1;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.mxeditorjs-link-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.mxeditorjs-link-custom-class {
+  flex: 1;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+}
+
+.mxeditorjs-link-custom-class:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.mxeditorjs-link-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.mxeditorjs-link-btn {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mxeditorjs-link-btn:hover {
+  background: #f3f4f6;
+}
+
+.mxeditorjs-link-btn--primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #fff;
+}
+
+.mxeditorjs-link-btn--primary:hover {
+  background: #2563eb;
+}
+
+.mxeditorjs-link-btn--danger {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.mxeditorjs-link-btn--danger:hover {
+  background: #fef2f2;
+}
+
+/* Image Settings Styles */
+.mxeditorjs-image-settings {
+  padding: 0.5rem;
+}
+
+.mxeditorjs-preset-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.mxeditorjs-preset-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.mxeditorjs-preset-select {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  background: #fff;
+}
+
+.mxeditorjs-preset-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.mxeditorjs-custom-class-input {
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin-top: 0.375rem;
+}
+
+.mxeditorjs-custom-class-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* Image Tool Buttons */
+.mxeditorjs-image-tool__buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.mxeditorjs-image-tool__select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 1.25rem;
+  background: #f9fafb;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #6b7280;
+  transition: all 0.15s ease;
+}
+
+.mxeditorjs-image-tool__select:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.mxeditorjs-image-tool__browse {
+  border-style: solid;
+  background: #fff;
+}
+
+/* Image Browser */
+.mxeditorjs-image-browser {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.mxeditorjs-image-browser__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mxeditorjs-image-browser__root,
+.mxeditorjs-image-browser__back {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mxeditorjs-image-browser__root:hover,
+.mxeditorjs-image-browser__back:hover {
+  background: #f3f4f6;
+}
+
+.mxeditorjs-image-browser__path {
+  flex: 1;
+  font-size: 0.75rem;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mxeditorjs-image-browser__close {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #9ca3af;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.mxeditorjs-image-browser__close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.mxeditorjs-image-browser__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.5rem;
+  padding: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.mxeditorjs-image-browser__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: #fff;
+}
+
+.mxeditorjs-image-browser__item:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.mxeditorjs-image-browser__thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #f3f4f6;
+}
+
+.mxeditorjs-image-browser__icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.mxeditorjs-image-browser__folder .mxeditorjs-image-browser__icon {
+  color: #f59e0b;
+}
+
+.mxeditorjs-image-browser__name {
+  font-size: 0.625rem;
+  color: #6b7280;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mxeditorjs-image-browser__empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+/* Migration Modal Styles */
+.mxeditorjs-migration-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: mxeditorjs-fade-in 0.15s ease;
+}
+
+.mxeditorjs-migration-modal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.mxeditorjs-migration-title {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.mxeditorjs-migration-info {
+  margin-bottom: 1rem;
+}
+
+.mxeditorjs-migration-info p {
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.mxeditorjs-migration-warning {
+  color: #d97706 !important;
+  font-weight: 500;
+  margin-top: 0.5rem !important;
+}
+
+.mxeditorjs-migration-preview {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.mxeditorjs-migration-block {
+  display: flex;
+  align-items: center;
+  padding: 0.375rem 0.5rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  margin-bottom: 0.375rem;
+}
+
+.mxeditorjs-migration-block:last-child {
+  margin-bottom: 0;
+}
+
+.mxeditorjs-migration-block-type {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #3b82f6;
+  text-transform: capitalize;
+}
+
+.mxeditorjs-migration-more {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  padding-top: 0.5rem;
+}
+
+.mxeditorjs-migration-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.mxeditorjs-migration-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mxeditorjs-migration-btn:hover {
+  background: #f3f4f6;
+}
+
+.mxeditorjs-migration-btn--primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #fff;
+}
+
+.mxeditorjs-migration-btn--primary:hover {
+  background: #2563eb;
+}

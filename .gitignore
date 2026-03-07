@@ -1,0 +1,5 @@
+node_modules/
+_build/build.config.php
+_packages/
+*.transport.zip
+.DS_Store

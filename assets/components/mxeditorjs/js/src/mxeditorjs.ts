@@ -973,14 +973,37 @@ class MxEditorJsApp {
 
 const activeInstances: Map<string, MxEditorJsApp> = new Map();
 
+/**
+ * Нормализует аргумент loadRTE/unloadRTE в массив ID.
+ * MODX может передавать строку (через запятую), массив или один элемент.
+ */
+function normalizeRteElements(elements: unknown): string[] {
+  if (elements == null) {
+    return [];
+  }
+  if (typeof elements === 'string') {
+    return elements.split(',').map((id) => id.trim()).filter(Boolean);
+  }
+  if (Array.isArray(elements)) {
+    return elements
+      .map((item) => (typeof item === 'string' ? item : (item as { id?: string })?.id))
+      .filter((id): id is string => typeof id === 'string' && id.length > 0);
+  }
+  if (typeof elements === 'object' && elements !== null && 'id' in elements) {
+    const id = (elements as { id: string }).id;
+    return typeof id === 'string' && id ? [id] : [];
+  }
+  return [];
+}
+
 function registerRteHooks(): void {
   const config = window.mxEditorJsConfig;
   if (!config || !window.MODx) {
     return;
   }
 
-  window.MODx.loadRTE = (elements: string) => {
-    const ids = elements.split(',').map((id: string) => id.trim()).filter(Boolean);
+  window.MODx.loadRTE = (elements: unknown) => {
+    const ids = normalizeRteElements(elements);
     if (ids.length === 0) {
       return;
     }
@@ -997,9 +1020,9 @@ function registerRteHooks(): void {
     }
   };
 
-  window.MODx.unloadRTE = (elements: string) => {
-    if (elements) {
-      const ids = elements.split(',').map((id: string) => id.trim()).filter(Boolean);
+  window.MODx.unloadRTE = (elements: unknown) => {
+    const ids = normalizeRteElements(elements);
+    if (ids.length > 0) {
       ids.forEach((id) => {
         const app = activeInstances.get(id);
         if (app) {

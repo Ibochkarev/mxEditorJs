@@ -7,14 +7,14 @@
 Отредактируйте файл `_build/config.inc.php`:
 
 ```php
-define('PKG_VERSION', '1.0.0');
-define('PKG_RELEASE', 'pl');  // beta1, rc1, pl (production)
+'version' => '1.0.1',
+'release' => 'beta2',  // beta1, rc1, pl (production)
 ```
 
 Обновите `package.json`:
 
 ```json
-"version": "1.0.0"
+"version": "1.0.1"
 ```
 
 ### 2. Обновите changelog
@@ -22,7 +22,7 @@ define('PKG_RELEASE', 'pl');  // beta1, rc1, pl (production)
 Файл: `core/components/mxeditorjs/docs/changelog.txt`
 
 ```
-mxEditorJs 1.0.0 (YYYY-MM-DD)
+mxEditorJs 1.0.1 (YYYY-MM-DD)
 ====================================
 - Feature: описание
 - Fix: описание
@@ -67,8 +67,8 @@ php _build/build.php
 
 ### GitHub Release
 
-1. Создайте тег: `git tag v1.0.0`
-2. Загрузите тег: `git push origin v1.0.0`
+1. Создайте тег: `git tag v1.0.1-beta2` (или актуальная версия)
+2. Загрузите тег: `git push origin v1.0.1-beta2`
 3. Создайте Release на GitHub с changelog и прикрепите `.transport.zip`
 
 ### MODX Package Provider

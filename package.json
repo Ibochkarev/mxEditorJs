@@ -1,6 +1,6 @@
 {
   "name": "mxeditorjs",
-  "version": "1.0.1",
+  "version": "1.0.2-beta3",
   "private": true,
   "description": "Editor.js block editor for MODX 3",
   "scripts": {

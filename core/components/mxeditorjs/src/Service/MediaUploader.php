@@ -11,24 +11,8 @@ class MediaUploader
 {
     private modX $modx;
 
-    public function __construct(modX $modx)
-    {
-        $this->modx = $modx;
-    }
-
-    public function upload(array $file, int $resourceId): array
-    {
-        $this->validateFile($file);
-
-        $mediaSourceId = (int)$this->modx->getOption('mxeditorjs.image_mediasource', null, 1);
-        $template = $this->modx->getOption(
-            'mxeditorjs.image_upload_path',
-            null,
-            'images/resources/{resource_id}/'
-        );
-
-        return $this->uploadToPath($file, $resourceId, $mediaSourceId, $template);
-    }
+    private const DEFAULT_IMAGE_PATH = 'images/resources/{resource_id}/';
+    private const DEFAULT_FILE_PATH = 'files/resources/{resource_id}/';
 
     private const ALLOWED_IMAGE_MIME = [
         'image/jpeg',
@@ -44,18 +28,42 @@ class MediaUploader
         'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
     ];
 
+    public function __construct(modX $modx)
+    {
+        $this->modx = $modx;
+    }
+
+    public function upload(array $file, int $resourceId): array
+    {
+        $this->validateFile($file);
+
+        $mediaSourceId = (int)$this->modx->getOption('mxeditorjs.image_mediasource', null, 1);
+        $template = $this->modx->getOption(
+            'mxeditorjs.image_upload_path',
+            null,
+            self::DEFAULT_IMAGE_PATH
+        );
+
+        return $this->uploadToPath($file, $resourceId, $mediaSourceId, $template);
+    }
+
     public function uploadFile(array $file, int $resourceId): array
     {
         $this->validateFileForAttach($file);
 
-        $mediaSourceId = (int)$this->modx->getOption('mxeditorjs.image_mediasource', null, 1);
+        $mediaSourceId = (int)$this->modx->getOption('mxeditorjs.file_mediasource', null, 1);
         $template = $this->modx->getOption(
             'mxeditorjs.file_upload_path',
             null,
-            'files/resources/{resource_id}/'
+            self::DEFAULT_FILE_PATH
         );
 
         return $this->uploadToPath($file, $resourceId, $mediaSourceId, $template);
+    }
+
+    private function buildFileUrl(string $baseUrl, string $path, string $fileName): string
+    {
+        return rtrim($baseUrl, '/') . '/' . ltrim($path, '/') . ltrim($fileName, '/');
     }
 
     private function uploadToPath(
@@ -97,7 +105,7 @@ class MediaUploader
         }
 
         $baseUrl = $source->getBaseUrl();
-        $fileUrl = rtrim($baseUrl, '/') . '/' . ltrim($uploadPath, '/') . $safeName;
+        $fileUrl = $this->buildFileUrl($baseUrl, $uploadPath, $safeName);
 
         return [
             'success' => 1,
@@ -247,8 +255,8 @@ class MediaUploader
             $browsePath = $subPath;
         } else {
             $template = $type === 'image'
-                ? $this->modx->getOption('mxeditorjs.image_upload_path', null, 'images/resources/{resource_id}/')
-                : $this->modx->getOption('mxeditorjs.file_upload_path', null, 'files/resources/{resource_id}/');
+                ? $this->modx->getOption('mxeditorjs.image_upload_path', null, self::DEFAULT_IMAGE_PATH)
+                : $this->modx->getOption('mxeditorjs.file_upload_path', null, self::DEFAULT_FILE_PATH);
             $browsePath = str_replace('{resource_id}', (string)$resourceId, $template);
         }
 
@@ -275,7 +283,7 @@ class MediaUploader
 
             $itemPath = $fullPath . $item;
             $relativePath = $browsePath === '' ? $item : ltrim($browsePath, '/') . '/' . $item;
-            $itemUrl = rtrim($baseUrl, '/') . '/' . $relativePath;
+            $itemUrl = $this->buildFileUrl($baseUrl, $relativePath, '');
 
             if (is_dir($itemPath)) {
                 $folderPath = $browsePath === '' ? $item : rtrim($browsePath, '/') . '/' . $item;

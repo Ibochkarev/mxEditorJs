@@ -48,6 +48,11 @@ return [
         'xtype' => 'textfield',
         'area' => 'mxeditorjs_media',
     ],
+    'mxeditorjs.file_upload_path' => [
+        'value' => 'files/resources/{resource_id}/',
+        'xtype' => 'textfield',
+        'area' => 'mxeditorjs_media',
+    ],
     'mxeditorjs.allowed_image_types' => [
         'value' => 'jpg,jpeg,png,gif,webp,svg',
         'xtype' => 'textfield',

@@ -10,6 +10,8 @@
 | `mxeditorjs.profile` | Набор инструментов: `default`, `minimal`, `blog`, `full` | default |
 | `mxeditorjs.enabled_tools` | Свой список инструментов (переопределяет профиль) | — |
 | `mxeditorjs.image_mediasource` | Откуда загружать картинки (ID Media Source) | 1 |
+| `mxeditorjs.image_upload_path` | Путь для загрузки изображений | `images/resources/{resource_id}/` |
+| `mxeditorjs.file_upload_path` | Путь для загрузки файлов | `files/resources/{resource_id}/` |
 | `mxeditorjs.max_upload_size` | Макс. размер файла в байтах (5 МБ = 5242880) | 5242880 |
 
 > **Для редакторов контента:** обычно ничего настраивать не нужно. Редактор включается через `which_editor` = mxEditorJs в общих настройках MODX.
@@ -147,6 +149,19 @@
 - `images/resources/{resource_id}/` → `images/resources/42/`
 - `uploads/images/` → все изображения в одну папку
 - `content/{resource_id}/img/` → `content/42/img/`
+
+### mxeditorjs.file_upload_path
+
+|| |
+|---|---|
+| **Тип** | textfield |
+| **По умолчанию** | `files/resources/{resource_id}/` |
+| **Описание** | Шаблон пути для загрузки файлов-вложений (блок Attaches) внутри Media Source. Плейсхолдер `{resource_id}` заменяется на ID ресурса. |
+
+**Примеры:**
+- `files/resources/{resource_id}/` → `files/resources/42/`
+- `uploads/files/` → все файлы в одну папку
+- `content/{resource_id}/attachments/` → `content/42/attachments/`
 
 ### mxeditorjs.allowed_image_types
 

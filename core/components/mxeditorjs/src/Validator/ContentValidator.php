@@ -23,6 +23,7 @@ class ContentValidator
         'table',
         'warning',
         'checklist',
+        'gallery',
     ];
 
     private array $errors = [];

@@ -1,4 +1,10 @@
 import type { BlockTool, BlockToolConstructorOptions, BlockToolData } from '@editorjs/editorjs';
+import {
+  fetchMediaBrowse,
+  normalizeFileUrlForDisplay,
+  renderMediaBrowser,
+  type MediaBrowserPayload,
+} from './MediaBrowser';
 
 interface ImageData extends BlockToolData {
   file: { url: string; name?: string; size?: number };
@@ -150,7 +156,7 @@ export default class ImageTool implements BlockTool {
     browseBtn.textContent = this.t('image_browse');
     browseBtn.title = this.t('image_browse_title');
     browseBtn.addEventListener('click', () => {
-      this.showBrowser();
+      void this.showBrowser();
     });
 
     container.appendChild(uploadBtn);
@@ -158,165 +164,47 @@ export default class ImageTool implements BlockTool {
     this.wrapper.appendChild(container);
   }
 
+  private browserStrings() {
+    return {
+      loading: this.t('loading'),
+      root: this.t('root'),
+      root_title: this.t('root_title'),
+      back: this.t('back'),
+      no_files_found: this.t('no_files_found'),
+    };
+  }
+
   private async showBrowser(path?: string): Promise<void> {
     if (!this.wrapper) return;
 
     this.wrapper.innerHTML = `<div class="mxeditorjs-image-tool__loading">${this.t('loading')}</div>`;
 
-    const form = new FormData();
-    form.append('action', 'media/browse');
-    form.append('resource_id', String(this.config.resourceId));
-    form.append('type', 'image');
-    if (path) {
-      form.append('path', path);
-    }
-
     try {
-      const response = await fetch(this.config.connectorUrl, {
-        method: 'POST',
-        body: form,
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        this.renderBrowser(result.data);
-      } else {
-        this.showUploadButton();
-        console.error('[mxEditorJs] Browse failed:', result.message);
-      }
+      const data = await fetchMediaBrowse(this.config.connectorUrl, this.config.resourceId, path);
+      this.renderBrowserView(data);
     } catch (e) {
       this.showUploadButton();
       console.error('[mxEditorJs] Browse error:', e);
     }
   }
 
-  private normalizeFileUrl(url: string): string {
-    if (!url) return url;
-    if (/^https?:\/\//i.test(url)) return url;
-    try {
-      return new URL(url, window.location.origin).href;
-    } catch {
-      return url;
-    }
-  }
-
-  private renderBrowser(data: {
-    files: Array<{ name: string; url: string; size: number; modified: number; isImage: boolean }>;
-    folders: Array<{ name: string; path: string }>;
-    path: string;
-    parentPath: string | null;
-  }): void {
+  private renderBrowserView(data: MediaBrowserPayload): void {
     if (!this.wrapper) return;
 
     this.wrapper.innerHTML = '';
+    const mount = document.createElement('div');
+    this.wrapper.appendChild(mount);
 
-    const browser = document.createElement('div');
-    browser.classList.add('mxeditorjs-image-browser');
-
-    const header = document.createElement('div');
-    header.classList.add('mxeditorjs-image-browser__header');
-
-    const rootBtn = document.createElement('button');
-    rootBtn.type = 'button';
-    rootBtn.classList.add('mxeditorjs-image-browser__root');
-    rootBtn.textContent = this.t('root');
-    rootBtn.title = this.t('root_title');
-    rootBtn.addEventListener('click', () => this.showBrowser('__root__'));
-    header.appendChild(rootBtn);
-
-    if (data.parentPath != null) {
-      const backBtn = document.createElement('button');
-      backBtn.type = 'button';
-      backBtn.classList.add('mxeditorjs-image-browser__back');
-      backBtn.textContent = this.t('back');
-      backBtn.addEventListener('click', () => this.showBrowser(data.parentPath ?? ''));
-      header.appendChild(backBtn);
-    }
-
-    const pathSpan = document.createElement('span');
-    pathSpan.classList.add('mxeditorjs-image-browser__path');
-    pathSpan.textContent = data.path || '/';
-    pathSpan.title = data.path || '/';
-    header.appendChild(pathSpan);
-
-    const closeBtn = document.createElement('button');
-    closeBtn.type = 'button';
-    closeBtn.classList.add('mxeditorjs-image-browser__close');
-    closeBtn.textContent = '×';
-    closeBtn.addEventListener('click', () => this.showUploadButton());
-    header.appendChild(closeBtn);
-
-    browser.appendChild(header);
-
-    const grid = document.createElement('div');
-    grid.classList.add('mxeditorjs-image-browser__grid');
-
-    data.folders.forEach((folder) => {
-      const item = document.createElement('div');
-      item.classList.add('mxeditorjs-image-browser__item', 'mxeditorjs-image-browser__folder');
-      const icon = document.createElement('span');
-      icon.classList.add('mxeditorjs-image-browser__icon');
-      icon.textContent = '📁';
-      const nameEl = document.createElement('span');
-      nameEl.classList.add('mxeditorjs-image-browser__name');
-      nameEl.textContent = folder.name;
-      item.appendChild(icon);
-      item.appendChild(nameEl);
-      item.addEventListener('click', () => this.showBrowser(folder.path));
-      grid.appendChild(item);
+    renderMediaBrowser(mount, data, this.browserStrings(), {
+      onRoot: () => void this.showBrowser('__root__'),
+      onBack: () => void this.showBrowser(data.parentPath ?? ''),
+      onFolder: (folderPath) => void this.showBrowser(folderPath),
+      onSelectFile: (file, storedUrl) => {
+        this.data.file = { url: storedUrl, name: file.name, size: file.size };
+        this.showImage(storedUrl, '');
+      },
+      onClose: () => this.showUploadButton(),
     });
-
-    data.files.forEach((file) => {
-      const item = document.createElement('div');
-      item.classList.add('mxeditorjs-image-browser__item', 'mxeditorjs-image-browser__file');
-
-      const fileUrl = this.normalizeFileUrl(file.url);
-
-      if (file.isImage) {
-        const img = document.createElement('img');
-        img.loading = 'lazy';
-        img.src = fileUrl;
-        img.alt = file.name;
-        img.classList.add('mxeditorjs-image-browser__thumb');
-        img.addEventListener('error', () => {
-          img.style.display = 'none';
-          const fallback = document.createElement('span');
-          fallback.classList.add('mxeditorjs-image-browser__icon');
-          fallback.setAttribute('aria-hidden', 'true');
-          fallback.textContent = '🖼';
-          item.insertBefore(fallback, item.querySelector('.mxeditorjs-image-browser__name'));
-        });
-        item.appendChild(img);
-      } else {
-        const icon = document.createElement('span');
-        icon.classList.add('mxeditorjs-image-browser__icon');
-        icon.textContent = '📄';
-        item.appendChild(icon);
-      }
-
-      const name = document.createElement('span');
-      name.classList.add('mxeditorjs-image-browser__name');
-      name.textContent = file.name;
-      name.title = file.name;
-      item.appendChild(name);
-
-      item.addEventListener('click', () => {
-        this.data.file = { url: fileUrl, name: file.name, size: file.size };
-        this.showImage(fileUrl, '');
-      });
-
-      grid.appendChild(item);
-    });
-
-    if (data.files.length === 0 && data.folders.length === 0) {
-      const empty = document.createElement('div');
-      empty.classList.add('mxeditorjs-image-browser__empty');
-      empty.textContent = this.t('no_files_found');
-      grid.appendChild(empty);
-    }
-
-    browser.appendChild(grid);
-    this.wrapper.appendChild(browser);
   }
 
   private async uploadImage(file: File): Promise<void> {
@@ -355,7 +243,7 @@ export default class ImageTool implements BlockTool {
     this.wrapper.innerHTML = '';
 
     const img = document.createElement('img');
-    img.src = url;
+    img.src = normalizeFileUrlForDisplay(url);
     img.alt = this.data.caption ? this.data.caption.replace(/<[^>]*>/g, '') : '';
     img.classList.add('mxeditorjs-image-tool__image');
     this.wrapper.appendChild(img);
@@ -406,7 +294,7 @@ export default class ImageTool implements BlockTool {
       button.innerHTML = setting.icon;
       button.title = setting.label;
       button.addEventListener('click', () => {
-        (this.data as any)[setting.name] = !(this.data as any)[setting.name];
+        (this.data as unknown as Record<string, boolean>)[setting.name] = !(this.data as unknown as Record<string, boolean>)[setting.name];
         button.classList.toggle('cdx-settings-button--active');
       });
       wrapper.appendChild(button);
@@ -425,11 +313,11 @@ export default class ImageTool implements BlockTool {
       const select = document.createElement('select');
       select.classList.add('mxeditorjs-preset-select');
 
-      Object.entries(presets).forEach(([key, value]) => {
+      Object.entries(presets).forEach(([key]) => {
         const option = document.createElement('option');
         option.value = key;
         option.textContent = key;
-        option.title = value || '(no classes)';
+        option.title = presets[key] || '(no classes)';
         if (this.data.classPreset === key) {
           option.selected = true;
         }
@@ -458,6 +346,11 @@ export default class ImageTool implements BlockTool {
   }
 
   validate(data: ImageData): boolean {
-    return !!data.file?.url;
+    const file = data?.file;
+    if (!file || Object.keys(file).length === 0) {
+      return true;
+    }
+    const url = file.url;
+    return typeof url === 'string' && url.trim() !== '';
   }
 }

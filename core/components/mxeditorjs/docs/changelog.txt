@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0-beta1] - 2026-05-23
+
+### Added
+- Блок **Gallery** на базе `@kiberpro/editorjs-gallery`: несколько изображений, сортировка (Sortable), режимы отображения fit/slider (tune).
+- Загрузка изображений галереи через `media/upload`; кнопка **Обзор** и выбор из Media Source через общий модуль с блоком Image (`media/browse`).
+- Системная настройка `mxeditorjs.gallery_max_count` — лимит числа картинок в блоке (`0` = без лимита).
+- Серверный HTML-снимок блока в `HtmlRenderer`, превью в менеджере; базовые стили фронта в `gallery-front.css` (сетка и горизонтальный скролл для slider).
+
+### Changed
+- Профили `default`, `blog`, `full` и список `mxeditorjs.available_tools` дополнены инструментом `gallery`.
+
 ## [1.0.2-beta3] - 2026-05-18
 
 ### Added

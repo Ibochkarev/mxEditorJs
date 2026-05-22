@@ -155,23 +155,9 @@ if ($modx->event->name === 'OnDocFormPrerender') {
     $profilesJson = $modx->getOption('mxeditorjs.profiles', null, '{}');
     $profiles = is_string($profilesJson) ? json_decode($profilesJson, true) : [];
     $profiles = is_array($profiles) ? $profiles : [];
-    $activeProfile = $profiles[$profileName] ?? $profiles['default'] ?? ['tools' => []];
 
-    $enabledToolsOverride = trim((string) $modx->getOption('mxeditorjs.enabled_tools', null, ''));
-    if ($enabledToolsOverride !== '') {
-        $enabledTools = array_map('trim', explode(',', $enabledToolsOverride));
-        $enabledTools = array_values(array_filter($enabledTools));
-    } else {
-        $enabledTools = $activeProfile['tools'] ?? [];
-        if (!is_array($enabledTools)) {
-            $enabledTools = [];
-        }
-        if (empty($enabledTools)) {
-            $availableStr = $modx->getOption('mxeditorjs.available_tools', null, 'paragraph,header,list,checklist,quote,table,code,raw,embed,image,attaches,delimiter,warning');
-            $enabledTools = array_map('trim', explode(',', $availableStr));
-            $enabledTools = array_values(array_filter($enabledTools));
-        }
-    }
+    require_once $modx->getOption('core_path') . 'components/mxeditorjs/src/Config/EditorTools.php';
+    $enabledTools = \MxEditorJs\Config\EditorTools::resolve($modx, (string) $profileName, $profiles);
 
     $imageClassPresets = json_decode(
         $modx->getOption('mxeditorjs.image_class_presets', null, '{}'),
@@ -190,6 +176,8 @@ if ($modx->event->name === 'OnDocFormPrerender') {
         true
     ) ?: [];
 
+    $galleryMaxCount = (int)$modx->getOption('mxeditorjs.gallery_max_count', null, 0);
+
     $modx->lexicon->load('mxeditorjs:default');
     $cultureKey = $modx->getOption('cultureKey', null, 'en');
     $i18nKeys = [
@@ -197,15 +185,29 @@ if ($modx->event->name === 'OnDocFormPrerender') {
         'loading', 'uploading', 'root', 'root_title', 'back', 'no_files_found', 'caption', 'border', 'stretch',
         'background', 'style', 'custom_css', 'select_file', 'migration_title', 'migration_blocks_count',
         'migration_html_size', 'migration_warning_overwrite', 'migration_more_blocks', 'cancel', 'migrate_content',
-        'tool_image',
+        'tool_image', 'tool_gallery', 'gallery_select_image', 'gallery_browse', 'gallery_browse_title',
     ];
     $i18n = [];
     foreach ($i18nKeys as $key) {
         $i18n[$key] = $modx->lexicon('mxeditorjs_' . $key);
     }
+
+    $galleryToolMessages = [
+        'Select an Image' => $modx->lexicon('mxeditorjs_gallery_i18n_select'),
+        'Delete' => $modx->lexicon('mxeditorjs_gallery_i18n_delete'),
+        'Gallery caption' => $modx->lexicon('mxeditorjs_gallery_i18n_caption'),
+        'Fit' => $modx->lexicon('mxeditorjs_gallery_i18n_fit'),
+        'Slider' => $modx->lexicon('mxeditorjs_gallery_i18n_slider'),
+        "Couldn\u{2019}t upload image. Please try another." => $modx->lexicon('mxeditorjs_gallery_i18n_upload_error'),
+    ];
+
     $editorJsMessages = [
         'toolNames' => [
             'Image' => $modx->lexicon('mxeditorjs_tool_image'),
+            'Gallery' => $modx->lexicon('mxeditorjs_tool_gallery'),
+        ],
+        'tools' => [
+            'gallery' => $galleryToolMessages,
         ],
     ];
 
@@ -215,6 +217,7 @@ if ($modx->event->name === 'OnDocFormPrerender') {
         'assetsUrl' => $assetsUrl,
         'profile' => $profileName,
         'enabledTools' => $enabledTools,
+        'galleryMaxCount' => $galleryMaxCount,
         'presets' => [
             'imageClass' => $imageClassPresets,
             'linkClass' => $linkClassPresets,
@@ -227,6 +230,7 @@ if ($modx->event->name === 'OnDocFormPrerender') {
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     $modx->controller->addCss($assetsUrl . 'css/mxeditorjs.css?v=' . $version);
+    $modx->controller->addCss($assetsUrl . 'css/gallery-front.css?v=' . $version);
 
     $modx->controller->addHtml(
         '<script>window.mxEditorJsConfig = ' . $config . ';</script>'

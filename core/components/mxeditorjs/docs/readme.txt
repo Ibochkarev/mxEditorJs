@@ -16,7 +16,7 @@ rendered to `modResource.content` for frontend compatibility.
 ## Features
 
 - Block-based editing with Editor.js
-- Paragraph, Header, List, Quote, Code, Table, Image, Delimiter blocks
+- Paragraph, Header, List, Quote, Code, Table, Image, Gallery, Delimiter blocks
 - Smart internal linking with resource autocomplete
 - Media upload integration with MODX Media Sources
 - HTML-to-JSON migration for existing content
@@ -36,6 +36,7 @@ System settings are available under the `mxeditorjs` namespace:
 - `mxeditorjs.image_upload_path` — Upload path pattern
 - `mxeditorjs.allowed_image_types` — Allowed image extensions
 - `mxeditorjs.max_upload_size` — Maximum file size in bytes
+- `mxeditorjs.gallery_max_count` — Max images per Gallery block (0 = unlimited)
 
 ## Documentation
 

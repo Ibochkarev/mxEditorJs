@@ -17,7 +17,7 @@ return [
         'area' => 'mxeditorjs',
     ],
     'mxeditorjs.available_tools' => [
-        'value' => 'paragraph,header,list,checklist,quote,table,code,raw,embed,image,attaches,delimiter,warning',
+        'value' => 'paragraph,header,list,checklist,quote,table,code,raw,embed,image,gallery,attaches,delimiter,warning',
         'xtype' => 'textfield',
         'area' => 'mxeditorjs',
         'description' => 'Comma-separated list of all block tools. Use in mxeditorjs.profiles "tools" or mxeditorjs.enabled_tools.',
@@ -29,7 +29,7 @@ return [
         'description' => 'Override profile: comma-separated tool keys. Empty = use profile tools. Example: paragraph,header,list,embed,image',
     ],
     'mxeditorjs.profiles' => [
-        'value' => '{"default":{"tools":["paragraph","header","list","checklist","quote","table","code","raw","embed","image","attaches","delimiter","warning"]},"minimal":{"tools":["paragraph","header","list","image"]},"blog":{"tools":["paragraph","header","list","quote","image","embed","delimiter"]},"full":{"tools":["paragraph","header","list","checklist","quote","table","code","raw","embed","image","attaches","delimiter","warning"]}}',
+        'value' => '{"default":{"tools":["paragraph","header","list","checklist","quote","table","code","raw","embed","image","gallery","attaches","delimiter","warning"]},"minimal":{"tools":["paragraph","header","list","image"]},"blog":{"tools":["paragraph","header","list","quote","image","gallery","embed","delimiter"]},"full":{"tools":["paragraph","header","list","checklist","quote","table","code","raw","embed","image","gallery","attaches","delimiter","warning"]}}',
         'xtype' => 'textarea',
         'area' => 'mxeditorjs',
     ],
@@ -46,6 +46,11 @@ return [
     'mxeditorjs.image_upload_path' => [
         'value' => 'images/resources/{resource_id}/',
         'xtype' => 'textfield',
+        'area' => 'mxeditorjs_media',
+    ],
+    'mxeditorjs.gallery_max_count' => [
+        'value' => 0,
+        'xtype' => 'numberfield',
         'area' => 'mxeditorjs_media',
     ],
     'mxeditorjs.file_upload_path' => [

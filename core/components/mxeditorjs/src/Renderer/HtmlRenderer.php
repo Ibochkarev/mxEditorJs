@@ -69,6 +69,7 @@ class HtmlRenderer
         $this->registerBlockRenderer('table', [$this, 'renderTable']);
         $this->registerBlockRenderer('warning', [$this, 'renderWarning']);
         $this->registerBlockRenderer('checklist', [$this, 'renderChecklistBlock']);
+        $this->registerBlockRenderer('gallery', [$this, 'renderGallery']);
     }
 
     private function renderParagraph(array $data, array $block = []): string
@@ -243,6 +244,48 @@ class HtmlRenderer
         }
 
         $html .= '</table>';
+        return $html;
+    }
+
+    private function renderGallery(array $data, array $block = []): string
+    {
+        $files = $data['files'] ?? [];
+        if (!is_array($files) || $files === []) {
+            return '';
+        }
+
+        $style = (($data['style'] ?? '') === 'slider') ? 'slider' : 'fit';
+        $caption = $this->sanitizeInlineHtml($data['caption'] ?? '');
+
+        $html = '<figure class="mxeditorjs-gallery mxeditorjs-gallery--' . htmlspecialchars($style, ENT_QUOTES, 'UTF-8') . '">';
+        $html .= '<div class="mxeditorjs-gallery__track">';
+
+        $hasImage = false;
+        foreach ($files as $file) {
+            if (!is_array($file)) {
+                continue;
+            }
+            $url = $file['url'] ?? '';
+            if ($url === '') {
+                continue;
+            }
+            $hasImage = true;
+            $url = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+            $html .= '<img src="' . $url . '" alt="" loading="lazy">';
+        }
+
+        $html .= '</div>';
+
+        if (!$hasImage) {
+            return '';
+        }
+
+        if ($caption !== '') {
+            $html .= '<figcaption>' . $caption . '</figcaption>';
+        }
+
+        $html .= '</figure>';
+
         return $html;
     }
 

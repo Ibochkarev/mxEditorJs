@@ -1,22 +1,24 @@
 import EditorJS, { type OutputData } from '@editorjs/editorjs';
-import Header from '@editorjs/header';
+import Header from './tools/HeaderTool';
 import NestedList from '@editorjs/list';
-import Paragraph from '@editorjs/paragraph';
+import Paragraph from './tools/ParagraphTool';
 import Delimiter from '@editorjs/delimiter';
 import Quote from '@editorjs/quote';
 import CodeTool from '@editorjs/code';
 import RawTool from '@editorjs/raw';
 import Table from '@editorjs/table';
-import AttachesTool from '@editorjs/attaches';
+import AttachesTool from './tools/AttachesTool';
 import Embed from '@editorjs/embed';
 import Marker from '@editorjs/marker';
 import InlineCode from '@editorjs/inline-code';
 import Underline from '@editorjs/underline';
 import Warning from '@editorjs/warning';
-import Checklist from '@editorjs/checklist';
+import Checklist from './tools/ChecklistTool';
 import AlignmentTuneTool from 'editorjs-text-alignment-blocktune';
 import Undo from 'editorjs-undo';
+import Sortable from 'sortablejs';
 import ImageTool from './tools/ImageTool';
+import GalleryTool from './tools/GalleryTool';
 import LinkAutocomplete from './tools/LinkAutocomplete';
 
 interface PresetsConfig {
@@ -54,6 +56,10 @@ export interface MxEditorJsI18n {
   cancel?: string;
   migrate_content?: string;
   tool_image?: string;
+  tool_gallery?: string;
+  gallery_select_image?: string;
+  gallery_browse?: string;
+  gallery_browse_title?: string;
 }
 
 interface MxEditorJsConfig {
@@ -67,6 +73,8 @@ interface MxEditorJsConfig {
   locale?: string;
   i18n?: MxEditorJsI18n;
   editorJsI18n?: { messages?: Record<string, Record<string, string>> };
+  /** Max images per gallery block; 0 = unlimited */
+  galleryMaxCount?: number;
 }
 
 interface MigrationDryRunResult {
@@ -284,28 +292,184 @@ class MxEditorJsApp {
     if (!data?.blocks?.length) return data;
 
     const blocks = data.blocks.filter((block) => {
-      if (block.type !== 'image') return true;
-
       const d = block.data as Record<string, unknown> | undefined;
-      if (!d) return false;
-
-      const url =
-        (d.file as { url?: string })?.url ??
-        (typeof d.url === 'string' ? d.url : null) ??
-        (typeof d.file === 'string' ? d.file : null);
-
-      if (!url || typeof url !== 'string' || !url.trim()) {
-        console.warn('[mxEditorJs] Image block skipped: no valid URL');
-        return false;
+      if (!d) {
+        return block.type === 'delimiter';
       }
 
-      (block.data as Record<string, unknown>) = {
-        file: { url: url.trim(), name: (d.file as { name?: string })?.name, size: (d.file as { size?: number })?.size },
-        caption: d.caption ?? '',
-        withBorder: d.withBorder ?? false,
-        stretched: d.stretched ?? false,
-        withBackground: d.withBackground ?? false,
-      };
+      if (block.type === 'paragraph') {
+        block.data = {
+          text: typeof d.text === 'string' ? d.text : '',
+        };
+        return true;
+      }
+
+      if (block.type === 'header') {
+        const level = typeof d.level === 'number' ? d.level : Number(d.level);
+        block.data = {
+          text: typeof d.text === 'string' ? d.text : '',
+          level: Number.isFinite(level) && level >= 1 && level <= 6 ? level : 2,
+        };
+        return true;
+      }
+
+      if (block.type === 'checklist') {
+        const rawItems = Array.isArray(d.items) ? d.items : [];
+        const items = rawItems.map((item) => {
+          const entry = item && typeof item === 'object' ? (item as Record<string, unknown>) : {};
+          return {
+            text: typeof entry.text === 'string' ? entry.text : '',
+            checked: entry.checked === true,
+          };
+        });
+        block.data = { items: items.length > 0 ? items : [{ text: '', checked: false }] };
+        return true;
+      }
+
+      if (block.type === 'list') {
+        block.data = {
+          style: d.style === 'ordered' ? 'ordered' : 'unordered',
+          items: Array.isArray(d.items) ? d.items : [],
+        };
+        return true;
+      }
+
+      if (block.type === 'quote') {
+        block.data = {
+          text: typeof d.text === 'string' ? d.text : '',
+          caption: typeof d.caption === 'string' ? d.caption : '',
+          alignment: typeof d.alignment === 'string' ? d.alignment : 'left',
+        };
+        return true;
+      }
+
+      if (block.type === 'warning') {
+        block.data = {
+          title: typeof d.title === 'string' ? d.title : '',
+          message: typeof d.message === 'string' ? d.message : '',
+        };
+        return true;
+      }
+
+      if (block.type === 'code') {
+        block.data = {
+          code: typeof d.code === 'string' ? d.code : '',
+        };
+        return true;
+      }
+
+      if (block.type === 'raw') {
+        block.data = {
+          html: typeof d.html === 'string' ? d.html : '',
+        };
+        return true;
+      }
+
+      if (block.type === 'table') {
+        block.data = {
+          withHeadings: d.withHeadings === true,
+          content: Array.isArray(d.content) ? d.content : [],
+        };
+        return true;
+      }
+
+      if (block.type === 'embed') {
+        if (typeof d.embed !== 'string' || !d.embed.trim()) {
+          return false;
+        }
+        block.data = {
+          service: typeof d.service === 'string' ? d.service : '',
+          source: typeof d.source === 'string' ? d.source : '',
+          embed: d.embed.trim(),
+          width: typeof d.width === 'number' ? d.width : undefined,
+          height: typeof d.height === 'number' ? d.height : undefined,
+          caption: typeof d.caption === 'string' ? d.caption : '',
+        };
+        return true;
+      }
+
+      if (block.type === 'image') {
+        const url =
+          (d.file as { url?: string })?.url ??
+          (typeof d.url === 'string' ? d.url : null) ??
+          (typeof d.file === 'string' ? d.file : null);
+
+        if (!url || typeof url !== 'string' || !url.trim()) {
+          console.warn('[mxEditorJs] Image block skipped: no valid URL');
+          return false;
+        }
+
+        block.data = {
+          file: {
+            url: url.trim(),
+            name: (d.file as { name?: string })?.name,
+            size: (d.file as { size?: number })?.size,
+          },
+          caption: d.caption ?? '',
+          withBorder: d.withBorder ?? false,
+          stretched: d.stretched ?? false,
+          withBackground: d.withBackground ?? false,
+        };
+        return true;
+      }
+
+      if (block.type === 'attaches') {
+        const file = (d.file as Record<string, unknown> | undefined) ?? {};
+        const url =
+          (typeof file.url === 'string' ? file.url : null) ??
+          (typeof d.url === 'string' ? d.url : null);
+
+        if (!url || !url.trim()) {
+          return false;
+        }
+
+        block.data = {
+          file: {
+            url: url.trim(),
+            name: typeof file.name === 'string' ? file.name : undefined,
+            size: typeof file.size === 'number' ? file.size : undefined,
+            extension: typeof file.extension === 'string' ? file.extension : undefined,
+          },
+          title: typeof d.title === 'string' ? d.title : '',
+        };
+        return true;
+      }
+
+      if (block.type === 'gallery') {
+        const rawFiles = Array.isArray(d.files) ? d.files : [];
+        const files: Array<{ url: string; name?: string; size?: number }> = [];
+        for (const item of rawFiles) {
+          if (!item || typeof item !== 'object') {
+            continue;
+          }
+          const entry = item as Record<string, unknown>;
+          const url =
+            (typeof entry.url === 'string' ? entry.url : null) ??
+            (typeof (entry.file as { url?: string } | undefined)?.url === 'string'
+              ? (entry.file as { url: string }).url
+              : null);
+          if (!url || !url.trim()) {
+            continue;
+          }
+          files.push({
+            url: url.trim(),
+            name: typeof entry.name === 'string' ? entry.name : undefined,
+            size: typeof entry.size === 'number' ? entry.size : undefined,
+          });
+        }
+
+        if (files.length === 0) {
+          return false;
+        }
+
+        block.data = {
+          files,
+          caption: typeof d.caption === 'string' ? d.caption : '',
+          style: d.style === 'slider' ? 'slider' : 'fit',
+        };
+        return true;
+      }
+
       return true;
     });
 
@@ -331,7 +495,7 @@ class MxEditorJsApp {
         }
       }
 
-      return await this.executeMigration(dryRunResult.has_existing);
+      return await this.executeMigration(!!dryRunResult.has_existing);
     } catch (e) {
       console.error('[mxEditorJs] Migration failed:', e);
     }
@@ -493,6 +657,24 @@ class MxEditorJsApp {
     throw new Error(result.message || this.config.i18n?.upload_failed || 'Upload failed');
   }
 
+  private async uploadGalleryImage(file: File): Promise<{ success: number; file: { url: string; name?: string; size?: number } }> {
+    const form = new FormData();
+    form.append('action', 'media/upload');
+    form.append('resource_id', String(this.config.resourceId));
+    form.append('image', file);
+
+    const response = await fetch(this.config.connectorUrl, {
+      method: 'POST',
+      body: form,
+    });
+
+    const result = await response.json();
+    if (result.success && result.file?.url) {
+      return { success: 1, file: result.file };
+    }
+    throw new Error(result.message || this.config.i18n?.upload_failed || 'Upload failed');
+  }
+
   private buildTools(): Record<string, any> {
     const allTools: Record<string, any> = {
       header: {
@@ -519,6 +701,32 @@ class MxEditorJsApp {
           resourceId: this.config.resourceId,
           classPresets: this.config.presets?.imageClass,
           i18n: this.config.i18n,
+        },
+      },
+      gallery: {
+        class: GalleryTool as any,
+        config: {
+          connectorUrl: this.config.connectorUrl,
+          resourceId: this.config.resourceId,
+          sortableJs: Sortable,
+          maxElementCount:
+            typeof this.config.galleryMaxCount === 'number' && this.config.galleryMaxCount > 0
+              ? this.config.galleryMaxCount
+              : undefined,
+          uploader: {
+            uploadByFile: (file: File) => this.uploadGalleryImage(file),
+          },
+          buttonContent: this.config.i18n?.gallery_select_image ?? '',
+          mxI18n: {
+            gallery_browse: this.config.i18n?.gallery_browse,
+            gallery_browse_title: this.config.i18n?.gallery_browse_title,
+            loading: this.config.i18n?.loading,
+            root: this.config.i18n?.root,
+            root_title: this.config.i18n?.root_title,
+            back: this.config.i18n?.back,
+            no_files_found: this.config.i18n?.no_files_found,
+            gallery_select_image: this.config.i18n?.gallery_select_image,
+          },
         },
       },
       attaches: {
@@ -808,6 +1016,21 @@ class MxEditorJsApp {
           html += '</figure>';
           break;
         }
+        case 'gallery': {
+          const files = Array.isArray(d.files) ? d.files : [];
+          const caption = typeof d.caption === 'string' ? d.caption : '';
+          const style = d.style === 'slider' ? 'slider' : 'fit';
+          const imgs = files
+            .filter((f: { url?: string }) => f && typeof f.url === 'string' && f.url.trim() !== '')
+            .map((f: { url: string }) => `<img src="${this.escapeHtml(f.url.trim())}" alt="" loading="lazy">`)
+            .join('');
+          html = `<figure class="mxeditorjs-gallery mxeditorjs-gallery--${style}"><div class="mxeditorjs-gallery__track">${imgs}</div>`;
+          if (caption.trim()) {
+            html += `<figcaption>${caption}</figcaption>`;
+          }
+          html += '</figure>';
+          break;
+        }
         case 'attaches': {
           const file = d.file || {};
           const url = file.url || '';
@@ -880,6 +1103,8 @@ class MxEditorJsApp {
         return Array.isArray(d.items) && d.items.length > 0;
       case 'image':
         return !!d.file?.url;
+      case 'gallery':
+        return Array.isArray(d.files) && d.files.some((f: { url?: string }) => String(f?.url ?? '').trim() !== '');
       case 'attaches':
         return !!d.file?.url;
       case 'embed':

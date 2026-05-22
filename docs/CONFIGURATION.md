@@ -12,6 +12,7 @@
 | `mxeditorjs.image_mediasource` | Откуда загружать картинки (ID Media Source) | 1 |
 | `mxeditorjs.image_upload_path` | Путь для загрузки изображений | `images/resources/{resource_id}/` |
 | `mxeditorjs.file_upload_path` | Путь для загрузки файлов | `files/resources/{resource_id}/` |
+| `mxeditorjs.gallery_max_count` | Макс. число изображений в блоке Gallery (`0` = без лимита) | 0 |
 | `mxeditorjs.max_upload_size` | Макс. размер файла в байтах (5 МБ = 5242880) | 5242880 |
 
 > **Для редакторов контента:** обычно ничего настраивать не нужно. Редактор включается через `which_editor` = mxEditorJs в общих настройках MODX.
@@ -40,18 +41,18 @@
 
 | Профиль | Инструменты |
 |---------|------------|
-| `default` | paragraph, header, list, checklist, quote, table, code, raw, embed, image, attaches, delimiter, warning |
+| `default` | paragraph, header, list, checklist, quote, table, code, raw, embed, image, gallery, attaches, delimiter, warning |
 | `minimal` | paragraph, header, list, image |
-| `blog` | paragraph, header, list, quote, image, embed, delimiter |
-| `full` | Все инструменты (идентично default) |
+| `blog` | paragraph, header, list, quote, image, gallery, embed, delimiter |
+| `full` | Все инструменты (идентично default, включая gallery) |
 
 ### mxeditorjs.available_tools
 
 | | |
 |---|---|
 | **Тип** | textfield |
-| **По умолчанию** | `paragraph,header,list,checklist,quote,table,code,raw,embed,image,attaches,delimiter,warning` |
-| **Описание** | Полный список доступных блок-инструментов. Используется как fallback, когда профиль пуст и `enabled_tools` не задан. |
+| **По умолчанию** | `paragraph,header,list,checklist,quote,table,code,raw,embed,image,gallery,attaches,delimiter,warning` |
+| **Описание** | Полный список блок-инструментов пакета. Используется как fallback, если у профиля пустой массив `tools`, и как whitelist при чтении профиля. **Не включает блоки в редактор напрямую**, если профиль уже задан — см. приоритет ниже. |
 
 **Допустимые идентификаторы инструментов:**
 
@@ -67,6 +68,7 @@
 | `raw` | Сырой HTML | Block |
 | `embed` | Встроенный контент (через Paste API) | Block |
 | `image` | Изображение (кастомный) | Block |
+| `gallery` | Галерея изображений (сетка или слайдер, загрузка и обзор как у Image) | Block |
 | `attaches` | Вложенный файл | Block |
 | `delimiter` | Горизонтальный разделитель | Block |
 | `warning` | Предупреждение | Block |
@@ -97,13 +99,13 @@
 {
   "default": {
     "tools": ["paragraph", "header", "list", "checklist", "quote", "table",
-              "code", "raw", "embed", "image", "attaches", "delimiter", "warning"]
+              "code", "raw", "embed", "image", "gallery", "attaches", "delimiter", "warning"]
   },
   "minimal": {
     "tools": ["paragraph", "header", "list", "image"]
   },
   "blog": {
-    "tools": ["paragraph", "header", "list", "quote", "image", "embed", "delimiter"]
+    "tools": ["paragraph", "header", "list", "quote", "image", "gallery", "embed", "delimiter"]
   },
   "custom": {
     "tools": ["paragraph", "header", "list", "table", "image"]
@@ -152,7 +154,7 @@
 
 ### mxeditorjs.file_upload_path
 
-|| |
+| | |
 |---|---|
 | **Тип** | textfield |
 | **По умолчанию** | `files/resources/{resource_id}/` |
@@ -186,6 +188,14 @@
 | `5242880` | 5 МБ |
 | `10485760` | 10 МБ |
 | `20971520` | 20 МБ |
+
+### mxeditorjs.gallery_max_count
+
+| | |
+|---|---|
+| **Тип** | numberfield |
+| **По умолчанию** | `0` |
+| **Описание** | Максимальное количество изображений в одном блоке **Gallery**. Значение `0` означает отсутствие ограничения. Загрузка и выбор через «Обзор» используют те же Media Source и путь, что и блок Image (`mxeditorjs.image_mediasource`, `mxeditorjs.image_upload_path`). |
 
 ---
 

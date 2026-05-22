@@ -716,6 +716,14 @@ body.mxeditorjs-body-fullscreen {
   font-size: 0.875rem;
 }
 
+.mxeditorjs-gallery-browser-host {
+  margin-top: 0.5rem;
+}
+
+.mxeditorjs-gallery-tool__browse.cdx-button {
+  flex-shrink: 0;
+}
+
 /* Migration Modal Styles */
 .mxeditorjs-migration-overlay {
   position: fixed;

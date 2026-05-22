@@ -101,7 +101,25 @@ class MediaUploader
         if (!$result) {
             $errors = $source->getErrors();
             $message = !empty($errors) ? implode('; ', $errors) : 'Upload failed';
-            throw new \RuntimeException($message);
+
+            if ($this->isDuplicateUploadError($message)) {
+                $safeName = $this->makeUniqueName($source, $uploadPath, $safeName, true);
+                $result = $source->uploadObjectsToContainer($uploadPath, [
+                    [
+                        'name' => $safeName,
+                        'tmp_name' => $file['tmp_name'],
+                        'error' => $file['error'],
+                        'size' => $file['size'],
+                        'type' => $file['type'],
+                    ],
+                ]);
+            }
+
+            if (!$result) {
+                $errors = $source->getErrors();
+                $message = !empty($errors) ? implode('; ', $errors) : 'Upload failed';
+                throw new \RuntimeException($message);
+            }
         }
 
         $baseUrl = $source->getBaseUrl();
@@ -207,28 +225,75 @@ class MediaUploader
         return $clean . '.' . $ext;
     }
 
-    private function makeUniqueName(modMediaSource $source, string $path, string $name): string
+    private function makeUniqueName(modMediaSource $source, string $path, string $name, bool $forceSuffix = false): string
     {
         $basePath = $source->getBasePath();
         $dir = rtrim($basePath, '/') . '/' . ltrim($path, '/');
+        if (!str_ends_with($dir, '/')) {
+            $dir .= '/';
+        }
+
+        $existing = $this->listContainerFilenames($source, $path);
 
         $baseName = pathinfo($name, PATHINFO_FILENAME);
         $ext = pathinfo($name, PATHINFO_EXTENSION);
 
+        if ($forceSuffix) {
+            return $baseName . '-' . uniqid('', true) . ($ext !== '' ? '.' . $ext : '');
+        }
+
         $candidate = $name;
         $counter = 1;
 
-        while (file_exists($dir . $candidate)) {
-            $candidate = $baseName . '-' . $counter . '.' . $ext;
+        while (isset($existing[strtolower($candidate)]) || file_exists($dir . $candidate)) {
+            $candidate = $baseName . '-' . $counter . ($ext !== '' ? '.' . $ext : '');
             $counter++;
 
             if ($counter > 100) {
-                $candidate = $baseName . '-' . uniqid() . '.' . $ext;
+                $candidate = $baseName . '-' . uniqid('', true) . ($ext !== '' ? '.' . $ext : '');
                 break;
             }
         }
 
         return $candidate;
+    }
+
+    /**
+     * @return array<string, true> Lowercase filename => true
+     */
+    private function listContainerFilenames(modMediaSource $source, string $path): array
+    {
+        $names = [];
+
+        if (!method_exists($source, 'getObjectsInContainer')) {
+            return $names;
+        }
+
+        $objects = $source->getObjectsInContainer($path);
+        if (!is_array($objects)) {
+            return $names;
+        }
+
+        foreach ($objects as $object) {
+            if (!is_array($object)) {
+                continue;
+            }
+            $name = $object['name'] ?? $object['basename'] ?? null;
+            if (is_string($name) && $name !== '') {
+                $names[strtolower($name)] = true;
+            }
+        }
+
+        return $names;
+    }
+
+    private function isDuplicateUploadError(string $message): bool
+    {
+        $normalized = mb_strtolower($message);
+
+        return str_contains($normalized, 'already exists')
+            || str_contains($normalized, 'уже существует')
+            || str_contains($normalized, 'exists');
     }
 
     public function browse(int $resourceId, string $type = 'image', string $subPath = ''): array

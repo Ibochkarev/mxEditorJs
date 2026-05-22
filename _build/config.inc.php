@@ -16,7 +16,7 @@ if (!defined('MODX_CORE_PATH')) {
 return [
     'name' => 'mxEditorJs',
     'name_lower' => 'mxeditorjs',
-    'version' => '1.0.3',
+    'version' => '1.1.0',
     'release' => 'beta1',
 
     // Install package to site right after build

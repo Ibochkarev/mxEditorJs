@@ -1,77 +1,105 @@
 # Процесс релиза mxEditorJs
 
+Актуальная версия: **1.1.0-beta2**
+
 ## Подготовка
 
-### 1. Обновите версию
+### 1. Версия
 
-Отредактируйте файл `_build/config.inc.php`:
+`_build/config.inc.php`:
 
 ```php
-'version' => '1.0.1',
-'release' => 'beta2',  // beta1, rc1, pl (production)
+'version' => '1.1.0',
+'release' => 'beta1',  // beta1, beta2, rc1, pl
 ```
 
-Обновите `package.json`:
+`package.json`:
 
 ```json
-"version": "1.0.1"
+"version": "1.1.0-beta2"
 ```
 
-### 2. Обновите changelog
+### 2. Changelog
 
-Файл: `core/components/mxeditorjs/docs/changelog.txt`
+`core/components/mxeditorjs/docs/changelog.txt` — формат [Keep a Changelog](https://keepachangelog.com/).
 
 ```
-mxEditorJs 1.0.1 (YYYY-MM-DD)
-====================================
-- Feature: описание
-- Fix: описание
+## [1.1.0-beta1] - YYYY-MM-DD
+
+### Added
+- ...
+
+### Changed
+- ...
+
+### Fixed
+- ...
 ```
 
-### 3. Соберите фронтенд
+### 3. Зависимости
 
 ```bash
 cd Extras/mxEditorJs/
+npm update
+npm audit fix
 npm run build
+npx tsc --noEmit
 ```
 
-Проверьте, что `assets/components/mxeditorjs/js/mxeditorjs.js` обновился.
+Проверьте, что `patch-package` применил патч `@editorjs/attaches`.
 
-### 4. Синхронизируйте файлы
+### 4. Синхронизация
 
 ```bash
-# PHP
 cp -r Extras/mxEditorJs/core/components/mxeditorjs/ core/components/mxeditorjs/
-
-# JS + CSS
 cp -r Extras/mxEditorJs/assets/components/mxeditorjs/ assets/components/mxeditorjs/
 ```
 
-### 5. Соберите транспортный пакет
+### 5. Transport-пакет
 
 ```bash
-cd Extras/mxEditorJs/
 php _build/build.php
 ```
 
 Результат: `core/packages/mxeditorjs-{VERSION}-{RELEASE}.transport.zip`
 
+---
+
 ## Тестирование перед релизом
 
-1. Установите пакет на чистую инстанцию MODX 3
-2. Пройдите чеклист из [TESTING.md](TESTING.md)
-3. Проверьте работу с `which_element_editor` = `Ace` (не должно мешать)
-4. Проверьте миграцию HTML-контента
+1. Установка на чистую MODX 3
+2. Upgrade с предыдущей версии (проверить resolver gallery)
+3. Чеклист [TESTING.md](TESTING.md)
+4. `which_element_editor` = Ace — не ломает mxEditorJs
+5. Миграция HTML основного контента
+
+---
 
 ## Публикация
 
+### Git tag
+
+```bash
+git tag v1.1.0-beta2
+git push origin v1.1.0-beta2
+```
+
 ### GitHub Release
 
-1. Создайте тег: `git tag v1.0.1-beta2` (или актуальная версия)
-2. Загрузите тег: `git push origin v1.0.1-beta2`
-3. Создайте Release на GitHub с changelog и прикрепите `.transport.zip`
+Changelog + `.transport.zip` в attachments.
 
 ### MODX Package Provider
 
-1. Загрузите `.transport.zip` на modx.com или modstore.pro
-2. Заполните описание, требования, скриншоты
+Загрузка на modx.com или modstore.pro: описание, требования, скриншоты.
+
+---
+
+## Заметки по upgrade
+
+- `'settings' => false` в `_build/config.inc.php` — системные настройки **не перезаписываются** при upgrade
+- Новые ключи добавляют **resolvers** (`resolve.settings.php` и др.)
+- Таблицы sidecar сохраняются при uninstall (resolver `resolve.tables.php`)
+
+## Metrics
+
+При установке/upgrade resolver `resolver_06_metrics.php` отправляет анонимную статистику на `https://metrics.modx.pro/`. Не содержит данных сайта или пользователей.

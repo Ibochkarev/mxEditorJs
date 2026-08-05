@@ -1,6 +1,6 @@
 {
   "name": "mxeditorjs",
-  "version": "1.1.0-beta1",
+  "version": "1.1.0-beta2",
   "private": true,
   "description": "Editor.js block editor for MODX 3",
   "scripts": {
@@ -9,9 +9,9 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "patch-package": "^8.0.1",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "@kiberpro/editorjs-gallery": "^1.3.0",
@@ -33,6 +33,6 @@
     "@editorjs/warning": "^1.4.1",
     "editorjs-text-alignment-blocktune": "^1.0.3",
     "editorjs-undo": "^2.0.28",
-    "sortablejs": "^1.15.6"
+    "sortablejs": "^1.15.7"
   }
 }

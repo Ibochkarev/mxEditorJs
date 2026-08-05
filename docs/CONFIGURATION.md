@@ -59,7 +59,7 @@
 | ID | Описание | Тип |
 |----|----------|-----|
 | `paragraph` | Параграф | Block |
-| `header` | Заголовок H1–H6 | Block |
+| `header` | Заголовок H2–H5 (в UI редактора) | Block |
 | `list` | Маркированный/нумерованный список | Block |
 | `checklist` | Чеклист с флажками | Block |
 | `quote` | Цитата | Block |
@@ -207,7 +207,7 @@
 |---|---|
 | **Тип** | textarea |
 | **По умолчанию** | JSON |
-| **Описание** | CSS-классы для изображений. Пользователь выбирает стиль из выпадающего списка в настройках блока Image. |
+| **Описание** | CSS-классы для изображений. Пользователь выбирает стиль в настройках блока Image в менеджере. Пресет сохраняется в JSON блока. Серверный `HtmlRenderer` и клиентский предпросмотр **не добавляют** выбранный класс к тегу `<img>` — для фронтенда подключите свою логику или кастомный рендерер. |
 
 **Формат:** `{"display_name": "css-class"}`
 
@@ -295,14 +295,18 @@
 
 ## Приоритет настроек инструментов
 
-Логика выбора набора инструментов:
+Логику резолва реализует класс `MxEditorJs\Config\EditorTools` (см. [DEVELOPER.md](DEVELOPER.md)).
 
 ```
-1. mxeditorjs.enabled_tools (если не пустое) ← ВЫСШИЙ приоритет
+1. mxeditorjs.enabled_tools (если не пустое) ← высший приоритет
    │
    └── (пусто) →
-       2. Профиль из mxeditorjs.profiles[mxeditorjs.profile].tools
+       2. mxeditorjs.profiles[mxeditorjs.profile].tools
+          ∩ mxeditorjs.available_tools (whitelist)
+          + инструменты из PACKAGE_PROFILES, отсутствующие в stored JSON (upgrade)
           │
-          └── (пустой массив) →
-              3. mxeditorjs.available_tools ← FALLBACK
+          └── (пустой массив tools у профиля) →
+              3. mxeditorjs.available_tools ← fallback
 ```
+
+При обновлении с версий до 1.1.0 resolver `resolve.settings.php` добавляет `gallery` в `available_tools` и профили `default`, `full`, `blog`, если их там не было.

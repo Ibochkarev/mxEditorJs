@@ -4,28 +4,28 @@
 
 ### Редактор не отображается
 
-1. **Система → Системные настройки** → `which_editor` = **mxEditorJs**
-2. В настройках mxeditorjs: `mxeditorjs.enabled` = **Да**
+1. `which_editor` = **mxEditorJs**
+2. `mxeditorjs.enabled` = **Да**
 3. `use_editor` = **Да**
 4. **Система → Очистить кэш**
 
-### Редактор не появляется в дополнительных полях (TV)
+### Редактор не появляется в TV
 
-- TV должен быть типа **Textarea** с опцией **Rich Text** = `Да`
-- Перейдите на вкладку «Дополнительные поля» — редактор загружается при появлении поля
+- TV: **Textarea**, **Rich Text** = **Да**
+- Откройте вкладку **Дополнительные поля**
 
 ### Не добавляется видео
 
-Кнопки «Embed» нет. **Скопируйте ссылку** (YouTube, RuTube и т.д.) и **вставьте** (Ctrl+V) в пустой блок.
+Вставьте URL (YouTube, RuTube и т.д.) в пустой блок через Ctrl+V. Кнопки Embed нет.
 
-### Картинки не загружаются
+### Картинки и галерея не загружаются
 
-- Проверьте Media Source (настройка `mxeditorjs.image_mediasource`)
-- Права на запись в папку загрузок
-- Размер файла (до 5 МБ по умолчанию)
+- Media Source (`mxeditorjs.image_mediasource`)
+- Права на запись в папку (`mxeditorjs.image_upload_path`)
+- Размер ≤ `mxeditorjs.max_upload_size` (5 МБ по умолчанию)
 - Формат: JPG, PNG, GIF, WebP, SVG
 
-Подробнее — [Руководство пользователя](USER_GUIDE.md) и [Справочник настроек](CONFIGURATION.md).
+Подробнее: [USER_GUIDE.md](USER_GUIDE.md), [CONFIGURATION.md](CONFIGURATION.md).
 
 ---
 
@@ -33,99 +33,85 @@
 
 ### Две копии файлов
 
-В процессе разработки проект существует в двух местах:
-
 | Директория | Назначение |
-|---|---|
-| `Extras/mxEditorJs/` | Исходники. Здесь ведётся разработка. |
-| `core/components/mxeditorjs/` | Установленные PHP-файлы. Читаются MODX в рантайме. |
-| `assets/components/mxeditorjs/` | Установленные JS/CSS/connector. Отдаются браузеру. |
+|------------|------------|
+| `Extras/mxEditorJs/` | Исходники |
+| `core/components/mxeditorjs/` | PHP, читается MODX |
+| `assets/components/mxeditorjs/` | JS, CSS, connector |
 
-MODX читает файлы из установленных директорий, а не из `Extras/`. После изменений в исходниках необходима синхронизация.
+MODX не читает `Extras/` напрямую. После правок синхронизируйте файлы.
 
-## Синхронизация без пересборки пакета
+### Синхронизация
 
 ```bash
-# Копирование PHP
 cp -r Extras/mxEditorJs/core/components/mxeditorjs/ core/components/mxeditorjs/
-
-# Копирование JS + CSS + connector
 cp -r Extras/mxEditorJs/assets/components/mxeditorjs/ assets/components/mxeditorjs/
 ```
 
-Или с помощью rsync:
+Или rsync:
 
 ```bash
 rsync -av --delete Extras/mxEditorJs/core/components/mxeditorjs/ core/components/mxeditorjs/
 rsync -av --delete --exclude='node_modules' Extras/mxEditorJs/assets/components/mxeditorjs/ assets/components/mxeditorjs/
 ```
 
-## Static Plugin
-
-Плагин MODX может быть настроен как **Static** — это означает, что PHP-код читается из файла на диске, а не из базы данных.
-
-Проверка и установка через SQL:
+### Static Plugin
 
 ```sql
--- Проверить текущее состояние
 SELECT id, name, static, static_file FROM modx_site_plugins WHERE name = 'mxEditorJs';
 
--- Установить Static
 UPDATE modx_site_plugins
 SET static = 1,
     static_file = 'Extras/mxEditorJs/core/components/mxeditorjs/elements/plugins/mxeditorjs.plugin.php'
 WHERE name = 'mxEditorJs';
 ```
 
-> При Static режиме изменения в PHP-файле плагина применяются без пересохранения в менеджере.
+PHP-правки в static-файле применяются без пересохранения плагина в менеджере.
 
-## Очистка кэша MODX
-
-После изменения PHP-файлов очистите кэш:
+### Очистка кэша
 
 ```bash
 rm -rf core/cache/mgr/ core/cache/includes/ core/cache/scripts/
 ```
 
-Или через менеджер: **Система → Очистить кэш**.
+Или **Система → Очистить кэш**.
+
+---
 
 ## Сборка фронтенда
 
-### Однократная сборка
-
 ```bash
 cd Extras/mxEditorJs/
-npm run build
+npm install    # применяет patch-package для @editorjs/attaches
+npm run build  # production bundle
+npm run dev    # watch + sourcemap
 ```
 
-Создаёт минифицированный `assets/components/mxeditorjs/js/mxeditorjs.js`.
+После сборки скопируйте `mxeditorjs.js` в `assets/components/mxeditorjs/js/`.
 
-### Режим наблюдения
+### patch-package
+
+Патч `patches/@editorjs+attaches+1.3.2.patch` меняет lifecycle hook Attaches: `appendCallback` → `rendered`. Без него диалог выбора файла не откроется при добавлении блока из toolbox.
+
+Если после `npm update @editorjs/attaches` патч не применился, обновите patch-файл:
 
 ```bash
-cd Extras/mxEditorJs/
-npm run dev
+npx patch-package @editorjs/attaches
 ```
 
-ESBuild следит за изменениями TypeScript и пересобирает бандл. Sourcemap включён, минификация выключена.
+### Версионирование ассетов
 
-> После пересборки скопируйте `mxeditorjs.js` в `assets/components/mxeditorjs/js/`.
+Плагин добавляет `?v={filemtime}` к URL CSS и JS. Браузер подхватывает новые файлы без ручной очистки.
 
-## Версионирование ассетов
-
-Плагин автоматически добавляет `?v={filemtime}` к URL CSS и JS файлов. Обновлённые файлы автоматически обходят кэш браузера.
+---
 
 ## Отладка
 
 ### PHP
 
-Логи плагина и коннектора записываются в стандартный лог MODX:
-
 ```
 core/cache/logs/error.log
 ```
-
-Поиск записей mxEditorJs:
 
 ```bash
 grep '\[mxEditorJs\]' core/cache/logs/error.log
@@ -133,48 +119,39 @@ grep '\[mxEditorJs\]' core/cache/logs/error.log
 
 ### JavaScript
 
-Откройте DevTools браузера (F12) → Console. Ошибки инициализации Editor.js и запросов к коннектору выводятся в консоль.
+DevTools → Console. Ошибки инициализации и connector-запросов выводятся с префиксом `[mxEditorJs]`.
 
-### Проверка загрузки ассетов
+### Проверка загрузки
 
-В DevTools → Network проверьте, что загружаются:
-- `mxeditorjs.css?v=...`
-- `mxeditorjs.js?v=...`
-- `window.mxEditorJsConfig` — в HTML-источнике страницы
+Network: `mxeditorjs.css?v=...`, `mxeditorjs.js?v=...`, `gallery-front.css`.
 
-### Проверка конфигурации
-
-В DevTools → Console выполните:
+Console:
 
 ```javascript
 console.log(window.mxEditorJsConfig);
 ```
 
-Должен вывести объект с `connectorUrl`, `resourceId`, `enabledTools`, `locale`, `i18n`.
+Ожидаемые поля: `connectorUrl`, `resourceId`, `enabledTools`, `galleryMaxCount`, `locale`.
 
-## Типичные проблемы (детали)
+---
 
-### Редактор не отображается
+## Типичные проблемы (разработчик)
 
-1. `which_editor` ≠ `mxEditorJs`
-2. `mxeditorjs.enabled` = `false`
-3. `use_editor` = `false`
-4. Файл `mxeditorjs.js` не найден — пересоберите фронтенд (`npm run build`) и скопируйте в `assets/components/mxeditorjs/js/`
-5. Кэш MODX не очищен
+| Симптом | Причина | Решение |
+|---------|---------|---------|
+| Редактор не грузится | Нет `mxeditorjs.js` в assets | `npm run build`, синхронизация |
+| MutationObserver error | Старый билд | Пересобрать и скопировать JS |
+| TV не инициализируется | Rich Text выключен | Textarea + Rich Text = Да |
+| Attaches не открывает файл | Патч не применён | `npm install`, проверить postinstall |
+| Gallery нет в toolbar | Старые настройки после upgrade | Проверить `available_tools` и профиль, переустановить resolver или добавить `gallery` вручную |
+| HTML на сайте ≠ preview | Два рендерера | Сверить `HtmlRenderer` и `renderPreviewHtml()` |
 
-### Ошибка MutationObserver в консоли
+---
 
-Скрипт выполняется до загрузки `document.body`. Убедитесь, что используете актуальный билд.
+## Upgrade с версий до 1.1.0
 
-### TV-поля не инициализируются
+Resolver `resolve.settings.php` добавляет `gallery` в `mxeditorjs.available_tools` и профили `default`, `full`, `blog`. Если профили редактировали вручную, проверьте JSON в `mxeditorjs.profiles`.
 
-1. TV: **Textarea** + **Rich Text** = `Да`
-2. Откройте вкладку «Дополнительные поля»
-3. Проверьте консоль браузера (F12)
+Новая настройка: `mxeditorjs.gallery_max_count` (default `0`).
 
-### Изображения не загружаются
-
-1. Media Source (ID из `mxeditorjs.image_mediasource`) существует и доступен
-2. Права записи в директорию
-3. Размер и формат файла в пределах настроек
-4. Лог: `core/cache/logs/error.log` на `[mxEditorJs] Upload error`
+CSS галереи на фронте: `assets/components/mxeditorjs/css/gallery-front.css`.

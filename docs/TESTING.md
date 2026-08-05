@@ -1,135 +1,151 @@
 # Чеклист тестирования mxEditorJs
 
+Версия пакета: **1.1.0-beta2**
+
 ## Предварительные условия
 
-- [ ] MODX 3.0.3+ установлен
+- [ ] MODX 3.0.3+
 - [ ] PHP 8.2+
 - [ ] `which_editor` = `mxEditorJs`
 - [ ] `mxeditorjs.enabled` = `true`
 - [ ] `use_editor` = `true`
-- [ ] Фронтенд собран (`npm run build`)
-- [ ] Файлы синхронизированы с `core/components/mxeditorjs/` и `assets/components/mxeditorjs/`
+- [ ] `npm run build` выполнен
+- [ ] Файлы синхронизированы в `core/` и `assets/`
 - [ ] Кэш MODX очищен
 
 ---
 
-## 1. Инициализация редактора
+## 1. Инициализация
 
-- [ ] Открыть ресурс → редактор Editor.js отображается в поле контента
-- [ ] Тулбар редактора содержит кнопки Source и Fullscreen
-- [ ] Плейсхолдер отображается в пустом редакторе
-- [ ] Консоль браузера не содержит ошибок
+- [ ] Редактор отображается в поле контента ресурса
+- [ ] Toolbar: Source, Fullscreen
+- [ ] Плейсхолдер в пустом редакторе
+- [ ] Консоль без ошибок
 
-## 2. Основные блоки
+## 2. Block tools
 
-- [ ] Создать параграф (Enter в пустом блоке)
-- [ ] Создать заголовок (кнопка «+» → Header)
-- [ ] Переключить уровень заголовка (H1–H6)
-- [ ] Создать маркированный список
-- [ ] Создать нумерованный список
-- [ ] Создать чеклист с флажками
-- [ ] Создать цитату с подписью
-- [ ] Создать таблицу, добавить строки/столбцы
-- [ ] Создать блок кода
-- [ ] Создать блок Raw HTML
-- [ ] Создать разделитель (Delimiter)
-- [ ] Создать блок Warning (заголовок + сообщение)
+- [ ] Paragraph (Enter)
+- [ ] Header — уровни H2–H5
+- [ ] List: маркированный и нумерованный
+- [ ] Checklist
+- [ ] Quote с подписью
+- [ ] Table: строки, столбцы, заголовок
+- [ ] Code
+- [ ] Raw HTML
+- [ ] Delimiter
+- [ ] Warning
 
-## 3. Inline-форматирование
+## 3. Inline и tunes
 
-- [ ] Жирный (Ctrl/Cmd+B)
-- [ ] Курсив (Ctrl/Cmd+I)
-- [ ] Подчёркивание (Ctrl/Cmd+U)
-- [ ] Инлайн-код
-- [ ] Маркер
-- [ ] Выравнивание текста (лево, центр, право)
+- [ ] Bold, Italic, Underline
+- [ ] Inline code, Marker
+- [ ] Link
+- [ ] Alignment: left, center, right
 
-## 4. Изображения
+## 4. Image
 
-- [ ] Загрузить изображение через drag-and-drop
-- [ ] Загрузить изображение через кнопку «Загрузить»
-- [ ] Выбрать изображение через браузер Media Source
-- [ ] Навигация по директориям в браузере (Назад, В корень)
-- [ ] Добавить подпись к изображению
-- [ ] Переключить Border / Stretch / Background
-- [ ] Выбрать CSS-пресет из выпадающего списка
-- [ ] Загрузить файл через Attaches
+- [ ] Drag-and-drop upload
+- [ ] Кнопка загрузки
+- [ ] Browse Media Source
+- [ ] Навигация: Назад, В корень
+- [ ] Caption, Border, Stretch, Background
+- [ ] CSS preset (если настроен)
 
-## 5. Ссылки
+## 5. Gallery
 
-- [ ] Вставить ссылку через inline-тулбар
-- [ ] Автодополнение по имени ресурса
-- [ ] Автодополнение по ID ресурса
-- [ ] Выбрать target (_self, _blank)
-- [ ] Выбрать rel (nofollow, noopener)
-- [ ] Выбрать CSS-класс ссылки
+- [ ] Создать блок Gallery
+- [ ] Загрузить несколько изображений
+- [ ] Browse из Media Source
+- [ ] Drag-and-drop сортировка миниатюр
+- [ ] Режим fit (сетка)
+- [ ] Режим slider (горизонтальный скрoll)
+- [ ] Общая подпись
+- [ ] Лимит `gallery_max_count` (если > 0)
+- [ ] HTML на сайте: классы `mxeditorjs-gallery`, `mxeditorjs-gallery--fit|slider`
 
-## 6. Embed
+## 6. Attaches
 
-- [ ] Вставить URL YouTube → появляется embed-блок
-- [ ] Вставить URL Vimeo → появляется embed-блок
-- [ ] Embed отображается как iframe в рендеренном HTML
+- [ ] Загрузка файла из toolbox (диалог открывается)
+- [ ] Drag-and-drop
+- [ ] Ссылка download в HTML
 
-## 7. Сохранение и загрузка
+## 7. Links
 
-- [ ] Сохранить ресурс → данные сохранены
-- [ ] Переоткрыть ресурс → контент загружается из sidecar
-- [ ] HTML-снимок записан в `modResource.content`
-- [ ] Повторное сохранение без изменений → версия не инкрементируется (hash dedup)
+- [ ] Inline link
+- [ ] Autocomplete по pagetitle
+- [ ] Autocomplete по ID
+- [ ] Target, rel, CSS class
 
-## 8. Template Variables (TV)
+## 8. Embed
 
-- [ ] Создать TV типа Textarea с Rich Text = Да
-- [ ] Открыть ресурс → вкладка «Дополнительные поля» → Editor.js в TV
-- [ ] Редактировать TV-контент → сохранить → данные сохранены в `mxeditorjs_tv_content`
-- [ ] Переоткрыть → TV-контент загружается корректно
-- [ ] Удалить ресурс → записи TV удалены из sidecar
+- [ ] Paste URL YouTube
+- [ ] Paste URL RuTube
+- [ ] Paste URL Vimeo
+- [ ] iframe в HTML preview и на сайте
 
-## 9. Полноэкранный режим
+## 9. Save / load
 
-- [ ] Нажать Fullscreen → редактор разворачивается
-- [ ] Повторное нажатие → возврат к обычному виду
-- [ ] Скролл работает в полноэкранном режиме
+- [ ] Save → sidecar JSON записан
+- [ ] Reopen → контент из sidecar
+- [ ] HTML в `modResource.content`
+- [ ] Повторный save без изменений → version не растёт (hash dedup)
 
-## 10. Режим Source Preview
+## 10. Template Variables
 
-- [ ] Нажать Source → отображается HTML-предпросмотр
-- [ ] HTML корректно отражает текущий контент
-- [ ] Повторное нажатие → возврат к редактору
+- [ ] TV Textarea + Rich Text → Editor.js на вкладке TV
+- [ ] Save → `mxeditorjs_tv_content`
+- [ ] Reopen → TV JSON загружается
+- [ ] Delete resource → sidecar TV удалён
+- [ ] TV: миграция HTML **не** предлагается
 
-## 11. Миграция HTML → Editor.js
+## 11. Fullscreen и Source
 
-- [ ] Ресурс с HTML-контентом (от предыдущего редактора) → модальное окно миграции
-- [ ] Dry run: количество блоков и размер HTML
-- [ ] Подтвердить миграцию → контент конвертирован
-- [ ] Отменить → пустой редактор
-- [ ] Повторная миграция с force → перезаписывает существующие данные
+- [ ] Fullscreen (кнопка и F11)
+- [ ] Escape выходит из fullscreen
+- [ ] Source preview (Ctrl+U)
+- [ ] HTML в Source соответствует блокам
 
-## 12. Undo / Redo
+## 12. Migration
 
-- [ ] Ctrl/Cmd+Z → отмена последнего действия
-- [ ] Ctrl/Cmd+Shift+Z → повтор
+- [ ] Ресурс с HTML, без sidecar → modal migration
+- [ ] dry_run: blocks_count, html_length
+- [ ] Confirm → blocks созданы
+- [ ] Cancel → пустой редактор
+- [ ] force перезаписывает sidecar
 
-## 13. Локализация
+## 13. Undo / Redo
 
-- [ ] `cultureKey` = `ru` → интерфейс на русском
-- [ ] `cultureKey` = `en` → интерфейс на английском
-- [ ] Нет видимых ключей лексикона (mxeditorjs_*)
+- [ ] Ctrl/Cmd+Z
+- [ ] Ctrl/Cmd+Shift+Z
 
-## 14. Профили инструментов
+## 14. Локализация
 
-- [ ] `mxeditorjs.profile` = `minimal` → только paragraph, header, list, image
-- [ ] `mxeditorjs.profile` = `blog` → paragraph, header, list, quote, image, embed, delimiter
-- [ ] `mxeditorjs.enabled_tools` = `paragraph,header` → переопределяет профиль
+- [ ] `cultureKey` = `ru` → русский UI
+- [ ] `cultureKey` = `en` → английский UI
+- [ ] Нет сырых ключей лексикона в интерфейсе
 
-## 15. Безопасность
+## 15. Профили
 
-- [ ] Неавторизованный запрос к коннектору → ошибка 403
-- [ ] Загрузка недопустимого типа файла → ошибка
-- [ ] Загрузка файла больше max_upload_size → ошибка
-- [ ] Невалидный JSON в content/save → ошибка валидации
+- [ ] `profile` = `minimal` → paragraph, header, list, image
+- [ ] `profile` = `blog` → + quote, gallery, embed, delimiter
+- [ ] `enabled_tools` = `paragraph,header` → переопределяет профиль
+- [ ] Inline tools (marker, link) доступны при любом профиле
 
-## 16. Удаление ресурса
+## 16. Безопасность
 
-- [ ] Удалить ресурс → записи удалены из `mxeditorjs_content`
-- [ ] TV-записи также удалены из `mxeditorjs_tv_content`
+- [ ] Connector без сессии → `{ success: false, message: "Доступ запрещён" }` (HTTP 200)
+- [ ] Upload недопустимого типа → ошибка
+- [ ] Upload > max_upload_size → ошибка
+- [ ] content/save с invalid JSON → validation error
+- [ ] content/save без save_document → access denied
+
+## 17. Delete resource
+
+- [ ] `mxeditorjs_content` удалена
+- [ ] `mxeditorjs_tv_content` удалены
+
+## 18. Upgrade (если тестируете update)
+
+- [ ] После upgrade `gallery` в available_tools
+- [ ] Gallery в профилях default, full, blog
+- [ ] `gallery_max_count` настройка создана

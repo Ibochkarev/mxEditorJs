@@ -2,11 +2,13 @@
 
 Block-style content editor for MODX 3 based on Editor.js.
 
+Version: 1.1.0-beta2
+
 ## Overview
 
-mxEditorJs replaces the default resource content RTE with a modern block editor.
-Content is stored as canonical JSON in a sidecar table with an HTML snapshot
-rendered to `modResource.content` for frontend compatibility.
+mxEditorJs replaces the default resource RTE with a block editor.
+Canonical JSON lives in sidecar tables (mxeditorjs_content, mxeditorjs_tv_content).
+HTML snapshot goes to modResource.content or TV textarea for frontend output.
 
 ## Requirements
 
@@ -15,32 +17,34 @@ rendered to `modResource.content` for frontend compatibility.
 
 ## Features
 
-- Block-based editing with Editor.js
-- Paragraph, Header, List, Quote, Code, Table, Image, Gallery, Delimiter blocks
-- Smart internal linking with resource autocomplete
-- Media upload integration with MODX Media Sources
-- HTML-to-JSON migration for existing content
-- Fullscreen editing mode
-- Source preview (read-only HTML view)
-
-## Installation
-
-Install via MODX Package Manager or manually place files and run the resolver.
+- 14 block types including Gallery (multi-image, sortable, fit/slider)
+- Template Variable support (Textarea + Rich Text)
+- Media upload and browse via MODX Media Sources
+- Link autocomplete for MODX resources
+- HTML-to-JSON migration (main content only)
+- Tool profiles: default, minimal, blog, full
+- Fullscreen mode and Source preview
+- Russian and English localization
 
 ## Configuration
 
-System settings are available under the `mxeditorjs` namespace:
+System settings namespace: mxeditorjs
 
-- `mxeditorjs.enabled` — Enable/disable the editor
-- `mxeditorjs.image_mediasource` — Media source ID for images
-- `mxeditorjs.image_upload_path` — Upload path pattern
-- `mxeditorjs.allowed_image_types` — Allowed image extensions
-- `mxeditorjs.max_upload_size` — Maximum file size in bytes
-- `mxeditorjs.gallery_max_count` — Max images per Gallery block (0 = unlimited)
+Key settings:
+- mxeditorjs.enabled
+- mxeditorjs.profile / mxeditorjs.enabled_tools
+- mxeditorjs.image_mediasource / mxeditorjs.file_mediasource
+- mxeditorjs.gallery_max_count
+
+Set which_editor = mxEditorJs in MODX system settings.
 
 ## Documentation
 
-See PRD-mxEditorJs.md and TechSpec-mxEditorJs.md in the project root.
+Full docs in the docs/ folder of the repository:
+- docs/USER_GUIDE.md
+- docs/CONFIGURATION.md
+- docs/DEVELOPER.md
+- docs/API.md
 
 ## License
 

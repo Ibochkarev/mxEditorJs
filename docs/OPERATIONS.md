@@ -14,6 +14,12 @@
 - TV: **Textarea**, **Rich Text** = **Да**
 - Откройте вкладку **Дополнительные поля**
 
+### Редактор не появляется в MIGX
+
+- В Form Tabs: `"inputTVtype": "richtext"`
+- `which_editor` = **mxEditorJs**, `mxeditorjs.enabled` = **Да**
+- После установки/upgrade очистите кэш (нужно событие `OnTVInputRenderList` и файл `migxmxeditorjs.class.php`)
+
 ### Не добавляется видео
 
 Вставьте URL (YouTube, RuTube и т.д.) в пустой блок через Ctrl+V. Кнопки Embed нет.

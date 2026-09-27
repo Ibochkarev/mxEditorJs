@@ -5,7 +5,7 @@
  * Registers Editor.js as a rich text editor in MODX 3 manager
  * and injects the editor assets on the resource form.
  *
- * Events: OnRichTextEditorRegister, OnDocFormPrerender, OnBeforeDocFormSave, OnResourceDelete
+ * Events: OnRichTextEditorRegister, OnTVInputRenderList, OnDocFormPrerender, OnBeforeDocFormSave, OnResourceDelete
  *
  * @package mxeditorjs
  * @var \MODX\Revolution\modX $modx
@@ -14,6 +14,20 @@
 
 if ($modx->event->name === 'OnRichTextEditorRegister') {
     $modx->event->output('mxEditorJs');
+    return;
+}
+
+if ($modx->event->name === 'OnTVInputRenderList') {
+    if (!$modx->getOption('mxeditorjs.enabled', null, true)) {
+        return;
+    }
+
+    $corePath = $modx->getOption(
+        'mxeditorjs.core_path',
+        null,
+        $modx->getOption('core_path') . 'components/mxeditorjs/'
+    );
+    $modx->event->output($corePath . 'elements/tv/input/');
     return;
 }
 
@@ -89,9 +103,9 @@ if ($modx->event->name === 'OnBeforeDocFormSave') {
     $userId = (int)($modx->user ? $modx->user->get('id') : 0);
 
     $jsonRaw = $_POST['mxeditorjs_json'] ?? '';
-    if (!empty($jsonRaw)) {
+    if ($jsonRaw !== '') {
         $editorData = json_decode($jsonRaw, true);
-        if (is_array($editorData) && !empty($editorData['blocks'])) {
+        if (is_array($editorData) && isset($editorData['blocks']) && is_array($editorData['blocks'])) {
             require_once $corePath . 'src/Repository/ContentRepository.php';
             $repo = new \MxEditorJs\Repository\ContentRepository($modx);
             $repo->save($resourceId, $editorData, $userId);
@@ -104,12 +118,12 @@ if ($modx->event->name === 'OnBeforeDocFormSave') {
         }
 
         $tmplvarId = (int)$matches[1];
-        if ($tmplvarId <= 0 || empty($value)) {
+        if ($tmplvarId <= 0 || $value === '' || $value === null) {
             continue;
         }
 
-        $tvEditorData = json_decode($value, true);
-        if (!is_array($tvEditorData) || empty($tvEditorData['blocks'])) {
+        $tvEditorData = json_decode((string) $value, true);
+        if (!is_array($tvEditorData) || !isset($tvEditorData['blocks']) || !is_array($tvEditorData['blocks'])) {
             continue;
         }
 

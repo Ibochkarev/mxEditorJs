@@ -2,7 +2,7 @@
 
 Block-style content editor for MODX 3 based on Editor.js.
 
-Version: 1.1.0-beta2
+Version: 1.1.0-beta4
 
 ## Overview
 

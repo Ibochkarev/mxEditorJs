@@ -92,6 +92,8 @@ interface MxEditorJsConfig {
   };
 }
 
+type StorageMode = 'main' | 'tv' | 'inline';
+
 interface MigrationDryRunResult {
   dry_run?: boolean;
   skipped?: boolean;
@@ -108,6 +110,7 @@ declare global {
   interface Window {
     mxEditorJsConfig?: MxEditorJsConfig;
     MODx?: any;
+    MxEditorJsFlush?: (elementId: string) => void;
   }
 }
 
@@ -130,6 +133,7 @@ class MxEditorJsApp {
   private handleKeyDown: ((e: KeyboardEvent) => void) | null = null;
   private tmplvarId: number | null = null;
   private instanceHolderId: string = '';
+  private storageMode: StorageMode = 'main';
 
   constructor(config: MxEditorJsConfig) {
     this.config = config;
@@ -148,15 +152,15 @@ class MxEditorJsApp {
     this.textarea = textarea;
     this.cachedHtml = textarea.value;
 
-    this.tmplvarId = this.detectTmplvarId(textarea);
-
-    this.instanceHolderId = this.tmplvarId
-      ? `mxeditorjs-holder-tv-${this.tmplvarId}`
-      : this.holderId;
+    this.storageMode = this.detectStorageMode(textarea);
+    this.tmplvarId = this.storageMode === 'tv' ? this.detectTmplvarId(textarea) : null;
+    this.instanceHolderId = `mxeditorjs-holder-${elementId.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 
     this.injectHolder(textarea);
     this.injectToolbar();
-    this.createJsonField(textarea);
+    if (this.storageMode !== 'inline') {
+      this.createJsonField(textarea);
+    }
 
     try {
       const initialData = await this.loadContent();
@@ -167,6 +171,18 @@ class MxEditorJsApp {
       console.error('[mxEditorJs] Init failed:', err);
       this.restoreFallback(textarea);
     }
+  }
+
+  private detectStorageMode(textarea: HTMLTextAreaElement): StorageMode {
+    const id = textarea.id || '';
+    const name = textarea.name || '';
+    if (id === 'ta' || name === 'ta' || name === 'content') {
+      return 'main';
+    }
+    if (this.detectTmplvarId(textarea) !== null) {
+      return 'tv';
+    }
+    return 'inline';
   }
 
   private detectTmplvarId(textarea: HTMLTextAreaElement): number | null {
@@ -264,6 +280,10 @@ class MxEditorJsApp {
   }
 
   private async loadContent(): Promise<OutputData | undefined> {
+    if (this.storageMode === 'inline') {
+      return this.loadFromHtml(this.textarea?.value ?? '');
+    }
+
     if (this.config.resourceId <= 0) {
       return undefined;
     }
@@ -287,7 +307,7 @@ class MxEditorJsApp {
       }
 
       if (result.success && result.data === null) {
-        if (!this.tmplvarId) {
+        if (this.storageMode === 'main') {
           return await this.tryMigrateContent();
         }
         return undefined;
@@ -297,6 +317,36 @@ class MxEditorJsApp {
     }
 
     return undefined;
+  }
+
+  private async loadFromHtml(html: string): Promise<OutputData | undefined> {
+    const trimmed = html.trim();
+    if (!trimmed) {
+      return undefined;
+    }
+
+    try {
+      const form = new FormData();
+      form.append('action', 'content/fromHtml');
+      form.append('html', trimmed);
+
+      const response = await fetch(this.config.connectorUrl, {
+        method: 'POST',
+        body: form,
+      });
+      const result = await response.json();
+      if (result.success && result.data) {
+        return this.normalizeContent(result.data as OutputData);
+      }
+    } catch (e) {
+      console.error('[mxEditorJs] Failed to parse HTML:', e);
+    }
+
+    return {
+      time: Date.now(),
+      blocks: [{ type: 'raw', data: { html: trimmed } }],
+      version: '2.31.0',
+    };
   }
 
   /**
@@ -884,6 +934,11 @@ class MxEditorJsApp {
   }
 
   private scheduleSyncToTextarea(): void {
+    if (this.storageMode === 'inline') {
+      void this.syncToTextarea();
+      return;
+    }
+
     if (this.syncTimer) {
       clearTimeout(this.syncTimer);
     }
@@ -891,6 +946,22 @@ class MxEditorJsApp {
     this.syncTimer = setTimeout(() => {
       this.syncToTextarea();
     }, 500);
+  }
+
+  flushSync(): void {
+    if (this.syncTimer) {
+      clearTimeout(this.syncTimer);
+      this.syncTimer = null;
+    }
+
+    if (this.textarea) {
+      this.textarea.value = this.cachedHtml;
+    }
+    if (this.jsonField && this.cachedJsonString) {
+      this.jsonField.value = this.cachedJsonString;
+    }
+
+    void this.syncToTextarea();
   }
 
   private async syncToTextarea(): Promise<void> {
@@ -1273,11 +1344,37 @@ function normalizeRteElements(elements: unknown): string[] {
   return [];
 }
 
+function flushInstance(elementId: string): void {
+  activeInstances.get(elementId)?.flushSync();
+}
+
+function initEditorForElement(config: MxEditorJsConfig, elementId: string, attempts = 20): void {
+  if (!document.getElementById(elementId)) {
+    if (attempts <= 0) {
+      console.warn(`[mxEditorJs] Element #${elementId} not found in DOM`);
+      return;
+    }
+    window.setTimeout(() => initEditorForElement(config, elementId, attempts - 1), 50);
+    return;
+  }
+
+  const existing = activeInstances.get(elementId);
+  if (existing) {
+    existing.destroy();
+    activeInstances.delete(elementId);
+  }
+  const app = new MxEditorJsApp(config);
+  void app.initForElement(elementId);
+  activeInstances.set(elementId, app);
+}
+
 function registerRteHooks(): void {
   const config = window.mxEditorJsConfig;
   if (!config || !window.MODx) {
     return;
   }
+
+  window.MxEditorJsFlush = flushInstance;
 
   window.MODx.loadRTE = (elements: unknown) => {
     const ids = normalizeRteElements(elements);
@@ -1286,14 +1383,7 @@ function registerRteHooks(): void {
     }
 
     for (const elementId of ids) {
-      const existing = activeInstances.get(elementId);
-      if (existing) {
-        existing.destroy();
-        activeInstances.delete(elementId);
-      }
-      const app = new MxEditorJsApp(config);
-      app.initForElement(elementId);
-      activeInstances.set(elementId, app);
+      initEditorForElement(config, elementId);
     }
   };
 
@@ -1314,7 +1404,18 @@ function registerRteHooks(): void {
   };
 }
 
-registerRteHooks();
+function bootRteHooks(attempts = 20): void {
+  if (window.mxEditorJsConfig && window.MODx) {
+    registerRteHooks();
+    return;
+  }
+  if (attempts <= 0) {
+    return;
+  }
+  window.setTimeout(() => bootRteHooks(attempts - 1), 50);
+}
+
+bootRteHooks();
 
 function initTvRichTextFields(): void {
   if (!window.MODx?.loadRTE) return;

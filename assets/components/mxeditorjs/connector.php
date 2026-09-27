@@ -113,6 +113,10 @@ switch ($action) {
         handleMediaBrowse($modx, $corePath);
         break;
 
+    case 'content/fromHtml':
+        handleContentFromHtml($modx);
+        break;
+
     case 'content/migrate':
         handleContentMigrate($modx, $corePath, $userId);
         break;
@@ -342,6 +346,33 @@ function handleLinkSearch(\MODX\Revolution\modX $modx): void
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
+function handleContentFromHtml(\MODX\Revolution\modX $modx): void
+{
+    $html = $_REQUEST['html'] ?? '';
+    if (!is_string($html)) {
+        echo json_encode([
+            'success' => false,
+            'message' => $modx->lexicon('mxeditorjs_error_validation'),
+        ], JSON_UNESCAPED_UNICODE);
+        return;
+    }
+
+    try {
+        $migrator = new \MxEditorJs\Service\HtmlMigrator();
+        $editorData = $migrator->convert($html);
+        echo json_encode([
+            'success' => true,
+            'data' => $editorData,
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    } catch (\Throwable $e) {
+        $modx->log(\MODX\Revolution\modX::LOG_LEVEL_ERROR, '[mxEditorJs] fromHtml error: ' . $e->getMessage());
+        echo json_encode([
+            'success' => false,
+            'message' => $modx->lexicon('mxeditorjs_error_migration'),
+        ], JSON_UNESCAPED_UNICODE);
+    }
+}
+
 function handleContentMigrate(\MODX\Revolution\modX $modx, string $corePath, int $userId): void
 {
     $resourceId = (int)($_REQUEST['resource_id'] ?? 0);
@@ -422,12 +453,24 @@ function handleContentMigrate(\MODX\Revolution\modX $modx, string $corePath, int
             return;
         }
 
+        $renderer = new \MxEditorJs\Renderer\HtmlRenderer();
+        $htmlSnapshot = $renderer->render($editorData);
+        $resource->set('content', $htmlSnapshot);
+        if (!$resource->save()) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Failed to write HTML snapshot to resource',
+            ], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
         echo json_encode([
             'success' => true,
             'data' => [
                 'migrated' => true,
                 'blocks_count' => count($editorData['blocks'] ?? []),
                 'overwritten' => $existing !== null,
+                'html' => $htmlSnapshot,
             ],
         ], JSON_UNESCAPED_UNICODE);
     } catch (\Throwable $e) {

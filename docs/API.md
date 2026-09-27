@@ -210,10 +210,28 @@ HTTP-код остаётся **200**, не 403.
 
 **Выполнено:**
 ```json
-{ "success": true, "data": { "migrated": true, "blocks_count": 12, "overwritten": false } }
+{ "success": true, "data": { "migrated": true, "blocks_count": 12, "overwritten": false, "html": "<h2>...</h2>" } }
 ```
 
-Миграция **не перезаписывает** `modResource.content` — только создаёт JSON в sidecar.
+После успешной миграции JSON пишется в sidecar, HTML-снимок — в `modResource.content` (тот же путь, что у `content/save`).
+
+---
+
+### content/fromHtml
+
+Конвертация HTML в Editor.js OutputData без записи в БД. Нужна авторизация менеджера. Право `save_document` не требуется.
+
+| Параметр | Тип | Обяз. | Описание |
+|----------|-----|:---:|----------|
+| `action` | string | ✓ | `content/fromHtml` |
+| `html` | string | ✓ | Исходный HTML |
+
+**Успех:**
+```json
+{ "success": true, "data": { "time": 1709827200000, "blocks": [], "version": "2.31.0" } }
+```
+
+Используется для полей MIGX: значение хранится как HTML в JSON-строке TV, sidecar для строки MIGX нет.
 
 ---
 

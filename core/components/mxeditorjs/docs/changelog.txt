@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0-beta4] - 2026-09-27
+
+### Fixed
+- [#6](https://github.com/Ibochkarev/mxEditorJs/issues/6): пустой `blocks[]` сохраняется в sidecar при очистке редактора.
+- [#5](https://github.com/Ibochkarev/mxEditorJs/issues/5): `content/migrate` пишет HTML-снимок в `modResource.content`, как `content/save`.
+- [#3](https://github.com/Ibochkarev/mxEditorJs/issues/3): редактор подключается в MIGX (`inputTVtype: richtext`) через рендер `migxmxeditorjs`.
+
+### Added
+- Connector `content/fromHtml` — HTML → Editor.js JSON без записи sidecar (поля MIGX).
+- Плагин слушает `OnTVInputRenderList` и отдаёт путь к MIGX input-рендеру.
+
 ## [1.1.0-beta3] - 2026-08-30
 
 ### Added

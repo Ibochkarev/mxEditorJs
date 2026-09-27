@@ -245,8 +245,9 @@ assets/components/mxeditorjs/js/src/
 | Событие | Действие |
 |---------|----------|
 | **OnRichTextEditorRegister** | Регистрация `mxEditorJs` в `which_editor` |
+| **OnTVInputRenderList** | Путь к MIGX-рендеру `migxmxeditorjs` |
 | **OnDocFormPrerender** | CSS, JS, `mxEditorJsConfig`, cache-bust `?v=filemtime` |
-| **OnBeforeDocFormSave** | JSON из POST → sidecar (без HtmlRenderer) |
+| **OnBeforeDocFormSave** | JSON из POST → sidecar, включая пустой `blocks[]` |
 | **OnResourceDelete** | Удаление sidecar основного контента и всех TV |
 
 ---
@@ -330,7 +331,7 @@ rm -rf core/cache/mgr/ core/cache/includes/ core/cache/scripts/
 
 ```bash
 php _build/build.php
-# → core/packages/mxeditorjs-1.1.0-beta2.transport.zip
+# → core/packages/mxeditorjs-1.1.0-beta4.transport.zip
 ```
 
 При upgrade настройки из `_build/elements/settings.php` **не перезаписываются** автоматически (`settings => false` в config). Новые ключи добавляют resolvers (например `resolve.settings.php` для gallery).

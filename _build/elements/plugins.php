@@ -11,6 +11,7 @@ return [
         'description' => 'mxeditorjs_plugin_desc',
         'events' => [
             'OnRichTextEditorRegister',
+            'OnTVInputRenderList',
             'OnDocFormPrerender',
             'OnBeforeDocFormSave',
             'OnResourceDelete',

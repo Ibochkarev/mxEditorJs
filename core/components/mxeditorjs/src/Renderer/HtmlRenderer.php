@@ -70,6 +70,7 @@ class HtmlRenderer
         $this->registerBlockRenderer('warning', [$this, 'renderWarning']);
         $this->registerBlockRenderer('checklist', [$this, 'renderChecklistBlock']);
         $this->registerBlockRenderer('gallery', [$this, 'renderGallery']);
+        $this->registerBlockRenderer('mxgallery', [$this, 'renderMxGallery']);
     }
 
     private function renderParagraph(array $data, array $block = []): string
@@ -287,6 +288,38 @@ class HtmlRenderer
         $html .= '</figure>';
 
         return $html;
+    }
+
+    private function renderMxGallery(array $data, array $block = []): string
+    {
+        $mode = ($data['mode'] ?? '') === 'collection' ? 'collection' : 'ids';
+        if ($mode === 'collection') {
+            $collectionId = (int) ($data['collectionId'] ?? 0);
+            if ($collectionId <= 0) {
+                return '';
+            }
+
+            return '[[!mxGallery? &collection=`' . $collectionId . '` &picture=`1`]]';
+        }
+
+        $ids = [];
+        if (isset($data['ids']) && is_array($data['ids'])) {
+            foreach ($data['ids'] as $id) {
+                $intId = (int) $id;
+                if ($intId > 0) {
+                    $ids[] = $intId;
+                }
+            }
+        }
+        $ids = array_values(array_unique($ids));
+        if ($ids === []) {
+            return '';
+        }
+        if (count($ids) === 1) {
+            return '[[!mxGallery? &id=`' . $ids[0] . '` &picture=`1`]]';
+        }
+
+        return '[[!mxGallery? &ids=`' . implode(',', $ids) . '` &picture=`1` &sort=`selection`]]';
     }
 
     private function sanitizeInlineHtml(string $html): string

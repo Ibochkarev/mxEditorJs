@@ -837,3 +837,61 @@ body.mxeditorjs-body-fullscreen {
 .mxeditorjs-migration-btn--primary:hover {
   background: #2563eb;
 }
+
+/* mxGallery block (soft integration) */
+.mxeditorjs-mxgallery {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 12px;
+  background: #f9fafb;
+}
+
+.mxeditorjs-mxgallery__summary {
+  font-size: 14px;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.mxeditorjs-mxgallery__summary--empty {
+  color: #6b7280;
+}
+
+.mxeditorjs-mxgallery__thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.mxeditorjs-mxgallery__thumbs img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.mxeditorjs-mxgallery__chip,
+.mxeditorjs-mxgallery__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 48px;
+  padding: 0 8px;
+  border-radius: 4px;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 12px;
+}
+
+.mxeditorjs-mxgallery__caption {
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.mxeditorjs-mxgallery__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

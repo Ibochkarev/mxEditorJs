@@ -11,26 +11,26 @@ use MODX\Revolution\modX;
 
 class EditorTools
 {
-    public const DEFAULT_AVAILABLE = 'paragraph,header,list,checklist,quote,table,code,raw,embed,image,gallery,attaches,delimiter,warning';
+    public const DEFAULT_AVAILABLE = 'paragraph,header,list,checklist,quote,table,code,raw,embed,image,gallery,mxgallery,attaches,delimiter,warning';
 
     /** @var array<string, array{tools: string[]}> */
     public const PACKAGE_PROFILES = [
         'default' => [
             'tools' => [
                 'paragraph', 'header', 'list', 'checklist', 'quote', 'table', 'code', 'raw', 'embed',
-                'image', 'gallery', 'attaches', 'delimiter', 'warning',
+                'image', 'gallery', 'mxgallery', 'attaches', 'delimiter', 'warning',
             ],
         ],
         'minimal' => [
             'tools' => ['paragraph', 'header', 'list', 'image'],
         ],
         'blog' => [
-            'tools' => ['paragraph', 'header', 'list', 'quote', 'image', 'gallery', 'embed', 'delimiter'],
+            'tools' => ['paragraph', 'header', 'list', 'quote', 'image', 'gallery', 'mxgallery', 'embed', 'delimiter'],
         ],
         'full' => [
             'tools' => [
                 'paragraph', 'header', 'list', 'checklist', 'quote', 'table', 'code', 'raw', 'embed',
-                'image', 'gallery', 'attaches', 'delimiter', 'warning',
+                'image', 'gallery', 'mxgallery', 'attaches', 'delimiter', 'warning',
             ],
         ],
     ];
@@ -141,6 +141,10 @@ class EditorTools
 
         if (!in_array('gallery', $tools, true)) {
             $tools[] = 'gallery';
+        }
+
+        if (!in_array('mxgallery', $tools, true)) {
+            $tools[] = 'mxgallery';
         }
 
         return implode(',', $tools);

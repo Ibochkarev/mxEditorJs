@@ -19,6 +19,7 @@ import Undo from 'editorjs-undo';
 import Sortable from 'sortablejs';
 import ImageTool from './tools/ImageTool';
 import GalleryTool from './tools/GalleryTool';
+import MxGalleryBlockTool, { buildMxGallerySnippet } from './tools/MxGalleryTool';
 import LinkAutocomplete from './tools/LinkAutocomplete';
 
 interface PresetsConfig {
@@ -57,9 +58,17 @@ export interface MxEditorJsI18n {
   migrate_content?: string;
   tool_image?: string;
   tool_gallery?: string;
+  tool_mxgallery?: string;
   gallery_select_image?: string;
   gallery_browse?: string;
   gallery_browse_title?: string;
+  mxgallery_choose_media?: string;
+  mxgallery_choose_collection?: string;
+  mxgallery_change?: string;
+  mxgallery_clear?: string;
+  mxgallery_empty?: string;
+  mxgallery_collection_prefix?: string;
+  mxgallery_no_collections?: string;
 }
 
 interface MxEditorJsConfig {
@@ -75,6 +84,12 @@ interface MxEditorJsConfig {
   editorJsI18n?: { messages?: Record<string, Record<string, string>> };
   /** Max images per gallery block; 0 = unlimited */
   galleryMaxCount?: number;
+  mxGallery?: {
+    enabled?: boolean;
+    connectorUrl?: string;
+    pickerUrl?: string;
+    authToken?: string;
+  };
 }
 
 interface MigrationDryRunResult {
@@ -729,6 +744,26 @@ class MxEditorJsApp {
           },
         },
       },
+      mxgallery: {
+        class: MxGalleryBlockTool as any,
+        config: {
+          enabled: this.config.mxGallery?.enabled === true,
+          connectorUrl: this.config.mxGallery?.connectorUrl ?? '',
+          pickerUrl: this.config.mxGallery?.pickerUrl ?? '',
+          authToken: this.config.mxGallery?.authToken ?? '',
+          i18n: {
+            tool_title: this.config.i18n?.tool_mxgallery,
+            choose_media: this.config.i18n?.mxgallery_choose_media,
+            choose_collection: this.config.i18n?.mxgallery_choose_collection,
+            change: this.config.i18n?.mxgallery_change,
+            clear: this.config.i18n?.mxgallery_clear,
+            empty: this.config.i18n?.mxgallery_empty,
+            collection_prefix: this.config.i18n?.mxgallery_collection_prefix,
+            no_collections: this.config.i18n?.mxgallery_no_collections,
+            loading: this.config.i18n?.loading,
+          },
+        },
+      },
       attaches: {
         class: AttachesTool as any,
         config: {
@@ -803,6 +838,10 @@ class MxEditorJsApp {
         config: { default: 'left' },
       },
     };
+
+    if (this.config.mxGallery?.enabled !== true) {
+      delete allTools.mxgallery;
+    }
 
     const enabledTools = this.config.enabledTools;
     if (!enabledTools || enabledTools.length === 0) {
@@ -1031,6 +1070,14 @@ class MxEditorJsApp {
           html += '</figure>';
           break;
         }
+        case 'mxgallery': {
+          html = buildMxGallerySnippet({
+            mode: d.mode === 'collection' ? 'collection' : 'ids',
+            ids: Array.isArray(d.ids) ? d.ids : [],
+            collectionId: typeof d.collectionId === 'number' ? d.collectionId : null,
+          });
+          break;
+        }
         case 'attaches': {
           const file = d.file || {};
           const url = file.url || '';
@@ -1105,6 +1152,11 @@ class MxEditorJsApp {
         return !!d.file?.url;
       case 'gallery':
         return Array.isArray(d.files) && d.files.some((f: { url?: string }) => String(f?.url ?? '').trim() !== '');
+      case 'mxgallery':
+        if (d.mode === 'collection') {
+          return typeof d.collectionId === 'number' && d.collectionId > 0;
+        }
+        return Array.isArray(d.ids) && d.ids.some((id: unknown) => parseInt(String(id), 10) > 0);
       case 'attaches':
         return !!d.file?.url;
       case 'embed':

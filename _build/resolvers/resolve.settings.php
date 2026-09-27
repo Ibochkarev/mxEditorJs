@@ -30,7 +30,7 @@ if ($availableSetting instanceof modSystemSetting) {
     if ($next !== (string) $availableSetting->get('value')) {
         $availableSetting->set('value', $next);
         $availableSetting->save();
-        $modx->log(xPDO::LOG_LEVEL_INFO, '[mxEditorJs] Updated mxeditorjs.available_tools with gallery.');
+        $modx->log(xPDO::LOG_LEVEL_INFO, '[mxEditorJs] Updated mxeditorjs.available_tools with gallery/mxgallery.');
     }
 }
 
@@ -46,7 +46,7 @@ if ($profilesSetting instanceof modSystemSetting) {
     if ($encoded !== false && $encoded !== (string) $profilesSetting->get('value')) {
         $profilesSetting->set('value', $encoded);
         $profilesSetting->save();
-        $modx->log(xPDO::LOG_LEVEL_INFO, '[mxEditorJs] Migrated mxeditorjs.profiles (gallery in default/full/blog).');
+        $modx->log(xPDO::LOG_LEVEL_INFO, '[mxEditorJs] Migrated mxeditorjs.profiles (gallery/mxgallery in default/full/blog).');
     }
 }
 

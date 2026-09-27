@@ -24,6 +24,7 @@ class ContentValidator
         'warning',
         'checklist',
         'gallery',
+        'mxgallery',
     ];
 
     private array $errors = [];

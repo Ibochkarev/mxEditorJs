@@ -185,7 +185,9 @@ if ($modx->event->name === 'OnDocFormPrerender') {
         'loading', 'uploading', 'root', 'root_title', 'back', 'no_files_found', 'caption', 'border', 'stretch',
         'background', 'style', 'custom_css', 'select_file', 'migration_title', 'migration_blocks_count',
         'migration_html_size', 'migration_warning_overwrite', 'migration_more_blocks', 'cancel', 'migrate_content',
-        'tool_image', 'tool_gallery', 'gallery_select_image', 'gallery_browse', 'gallery_browse_title',
+        'tool_image', 'tool_gallery', 'tool_mxgallery', 'gallery_select_image', 'gallery_browse', 'gallery_browse_title',
+        'mxgallery_choose_media', 'mxgallery_choose_collection', 'mxgallery_change', 'mxgallery_clear',
+        'mxgallery_empty', 'mxgallery_collection_prefix', 'mxgallery_no_collections',
     ];
     $i18n = [];
     foreach ($i18nKeys as $key) {
@@ -205,11 +207,28 @@ if ($modx->event->name === 'OnDocFormPrerender') {
         'toolNames' => [
             'Image' => $modx->lexicon('mxeditorjs_tool_image'),
             'Gallery' => $modx->lexicon('mxeditorjs_tool_gallery'),
+            'mxGallery' => $modx->lexicon('mxeditorjs_tool_mxgallery'),
         ],
         'tools' => [
             'gallery' => $galleryToolMessages,
         ],
     ];
+
+    $mxGalleryCore = $modx->getOption('core_path') . 'components/mxgallery/';
+    $mxGalleryEnabled = is_dir($mxGalleryCore);
+    if (!$mxGalleryEnabled) {
+        $enabledTools = array_values(array_filter(
+            $enabledTools,
+            static fn ($tool): bool => $tool !== 'mxgallery'
+        ));
+    }
+    $siteUrl = rtrim((string) $modx->getOption('site_url', null, ''), '/');
+    $assetsUrlRel = ltrim((string) $modx->getOption('assets_url', null, 'assets/'), '/');
+    $managerUrl = (string) $modx->getOption('manager_url', null, '/manager/');
+    $mxGalleryConnector = $siteUrl . '/' . $assetsUrlRel . 'components/mxgallery/connector.php';
+    $mxGalleryPicker = rtrim($managerUrl, '/') . '/?a=home&namespace=mxgallery&picker=1';
+    $contextKey = $modx->context ? (string) $modx->context->get('key') : 'mgr';
+    $mxGalleryAuth = $modx->user ? (string) $modx->user->getUserToken($contextKey) : '';
 
     $config = json_encode([
         'connectorUrl' => $connectorUrl,
@@ -227,6 +246,12 @@ if ($modx->event->name === 'OnDocFormPrerender') {
         'locale' => $cultureKey,
         'i18n' => $i18n,
         'editorJsI18n' => ['messages' => $editorJsMessages],
+        'mxGallery' => [
+            'enabled' => $mxGalleryEnabled,
+            'connectorUrl' => $mxGalleryConnector,
+            'pickerUrl' => $mxGalleryPicker,
+            'authToken' => $mxGalleryAuth,
+        ],
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     $modx->controller->addCss($assetsUrl . 'css/mxeditorjs.css?v=' . $version);

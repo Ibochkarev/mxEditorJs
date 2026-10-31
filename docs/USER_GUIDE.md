@@ -89,7 +89,7 @@ mxEditorJs заменяет TinyMCE/CKEditor в менеджере MODX. Кон�
 
 После вставки доступны: подпись, рамка, растягивание, фон, CSS-пресет (если настроен администратором).
 
-**Форматы:** JPG, JPEG, PNG, GIF, WebP, SVG.  
+**Форматы:** JPG, JPEG, PNG, GIF, WebP, SVG.
 **Размер по умолчанию:** до 5 МБ (`mxeditorjs.max_upload_size`).
 
 ---

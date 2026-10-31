@@ -11,8 +11,8 @@
 
 ## Connector API (HTTP)
 
-Базовый URL: `assets/components/mxeditorjs/connector.php`  
-Контекст: `mgr`  
+Базовый URL: `assets/components/mxeditorjs/connector.php`
+Контекст: `mgr`
 Content-Type ответа: `application/json; charset=utf-8`
 
 ### Аутентификация
@@ -418,6 +418,6 @@ window.MODx.unloadRTE('tv123');
 
 ### Ответы API
 
-Успех: `{ "success": true, "data": { ... } }`  
-Ошибка: `{ "success": false, "message": "..." }`  
+Успех: `{ "success": true, "data": { ... } }`
+Ошибка: `{ "success": false, "message": "..." }`
 Upload fail: `{ "success": 0, "message": "..." }`

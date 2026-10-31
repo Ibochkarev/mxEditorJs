@@ -1,6 +1,6 @@
 {
   "name": "mxeditorjs",
-  "version": "1.1.0-beta4",
+  "version": "1.1.0-beta5",
   "private": true,
   "description": "Editor.js block editor for MODX 3",
   "scripts": {
@@ -9,7 +9,7 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "esbuild": "^0.28.1",
+    "esbuild": "^0.28.2",
     "patch-package": "^8.0.1",
     "typescript": "^7.0.2"
   },
